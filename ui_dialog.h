@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dialog.ui'
 **
-** Created: Sat Oct 23 11:18:25 2010
+** Created: Sat Oct 23 23:00:53 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -39,12 +39,14 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QCheckBox *checkBoxCaseSensitive;
     QCheckBox *checkBoxRegExp;
+    QCheckBox *checkBoxSearchOnlyHome;
     QSpacerItem *horizontalSpacer;
     QHBoxLayout *horizontalLayout_3;
-    QCheckBox *checkBoxCloseAftrLaunch;
-    QCheckBox *checkBoxSearchOnlyHome;
+    QCheckBox *checkBoxCloseAfterLaunch;
     QSpacerItem *horizontalSpacer_2;
     QHBoxLayout *horizontalLayout_4;
+    QPushButton *pushButtonOpenFile;
+    QPushButton *pushButtonOpenFolder;
     QSpacerItem *horizontalSpacer_3;
     QPushButton *pushButton;
 
@@ -97,6 +99,12 @@ public:
 
         horizontalLayout_2->addWidget(checkBoxRegExp);
 
+        checkBoxSearchOnlyHome = new QCheckBox(Dialog);
+        checkBoxSearchOnlyHome->setObjectName(QString::fromUtf8("checkBoxSearchOnlyHome"));
+        checkBoxSearchOnlyHome->setChecked(true);
+
+        horizontalLayout_2->addWidget(checkBoxSearchOnlyHome);
+
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_2->addItem(horizontalSpacer);
@@ -107,17 +115,11 @@ public:
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        checkBoxCloseAftrLaunch = new QCheckBox(Dialog);
-        checkBoxCloseAftrLaunch->setObjectName(QString::fromUtf8("checkBoxCloseAftrLaunch"));
-        checkBoxCloseAftrLaunch->setChecked(true);
+        checkBoxCloseAfterLaunch = new QCheckBox(Dialog);
+        checkBoxCloseAfterLaunch->setObjectName(QString::fromUtf8("checkBoxCloseAfterLaunch"));
+        checkBoxCloseAfterLaunch->setChecked(true);
 
-        horizontalLayout_3->addWidget(checkBoxCloseAftrLaunch);
-
-        checkBoxSearchOnlyHome = new QCheckBox(Dialog);
-        checkBoxSearchOnlyHome->setObjectName(QString::fromUtf8("checkBoxSearchOnlyHome"));
-        checkBoxSearchOnlyHome->setChecked(true);
-
-        horizontalLayout_3->addWidget(checkBoxSearchOnlyHome);
+        horizontalLayout_3->addWidget(checkBoxCloseAfterLaunch);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -129,6 +131,16 @@ public:
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(6);
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        pushButtonOpenFile = new QPushButton(Dialog);
+        pushButtonOpenFile->setObjectName(QString::fromUtf8("pushButtonOpenFile"));
+
+        horizontalLayout_4->addWidget(pushButtonOpenFile);
+
+        pushButtonOpenFolder = new QPushButton(Dialog);
+        pushButtonOpenFolder->setObjectName(QString::fromUtf8("pushButtonOpenFolder"));
+
+        horizontalLayout_4->addWidget(pushButtonOpenFolder);
+
         horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_4->addItem(horizontalSpacer_3);
@@ -143,23 +155,27 @@ public:
 
 
         retranslateUi(Dialog);
-        QObject::connect(listWidget, SIGNAL(doubleClicked(QModelIndex)), Dialog, SLOT(onOpenFile(QModelIndex)));
         QObject::connect(find, SIGNAL(clicked()), Dialog, SLOT(onFind()));
         QObject::connect(lineEdit, SIGNAL(editingFinished()), find, SLOT(click()));
         QObject::connect(pushButton, SIGNAL(clicked()), Dialog, SLOT(onQuit()));
+        QObject::connect(pushButtonOpenFile, SIGNAL(clicked()), Dialog, SLOT(onOpenFile()));
+        QObject::connect(listWidget, SIGNAL(doubleClicked(QModelIndex)), pushButtonOpenFile, SLOT(click()));
+        QObject::connect(pushButtonOpenFolder, SIGNAL(clicked()), Dialog, SLOT(onOpenFolder()));
 
         QMetaObject::connectSlotsByName(Dialog);
     } // setupUi
 
     void retranslateUi(QDialog *Dialog)
     {
-        Dialog->setWindowTitle(QApplication::translate("Dialog", "Dialog", 0, QApplication::UnicodeUTF8));
+        Dialog->setWindowTitle(QApplication::translate("Dialog", "Search", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("Dialog", "Filter:", 0, QApplication::UnicodeUTF8));
         find->setText(QApplication::translate("Dialog", "Find", 0, QApplication::UnicodeUTF8));
         checkBoxCaseSensitive->setText(QApplication::translate("Dialog", "Case sensitive", 0, QApplication::UnicodeUTF8));
         checkBoxRegExp->setText(QApplication::translate("Dialog", "Use regular expressions", 0, QApplication::UnicodeUTF8));
-        checkBoxCloseAftrLaunch->setText(QApplication::translate("Dialog", "Close after launch", 0, QApplication::UnicodeUTF8));
         checkBoxSearchOnlyHome->setText(QApplication::translate("Dialog", "Search only home", 0, QApplication::UnicodeUTF8));
+        checkBoxCloseAfterLaunch->setText(QApplication::translate("Dialog", "Close after launch", 0, QApplication::UnicodeUTF8));
+        pushButtonOpenFile->setText(QApplication::translate("Dialog", "Open", 0, QApplication::UnicodeUTF8));
+        pushButtonOpenFolder->setText(QApplication::translate("Dialog", "Open Folder", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("Dialog", "Quit", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'dialog.h'
 **
-** Created: Sat Oct 23 11:18:28 2010
+** Created: Sat Oct 23 22:48:26 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_Dialog[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,19 +33,20 @@ static const uint qt_meta_data_Dialog[] = {
  // slots: signature, parameters, type, tag, flags
        8,    7,    7,    7, 0x08,
       17,    7,    7,    7, 0x08,
-      41,   39,    7,    7, 0x08,
-      65,    7,    7,    7, 0x08,
+      39,    7,    7,    7, 0x08,
+      94,    7,    7,    7, 0x08,
      120,    7,    7,    7, 0x08,
-     146,    7,    7,    7, 0x08,
+     129,    7,    7,    7, 0x08,
+     142,    7,    7,    7, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_Dialog[] = {
     "Dialog\0\0onFind()\0onLocateFinished(int)\0"
-    "i\0onOpenFile(QModelIndex)\0"
     "onTrayIconActivated(QSystemTrayIcon::ActivationReason)\0"
     "onLocateReadyReadStdOut()\0onQuit()\0"
+    "onOpenFile()\0onOpenFolder()\0"
 };
 
 const QMetaObject Dialog::staticMetaObject = {
@@ -79,13 +80,14 @@ int Dialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: onFind(); break;
         case 1: onLocateFinished((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 2: onOpenFile((*reinterpret_cast< QModelIndex(*)>(_a[1]))); break;
-        case 3: onTrayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
-        case 4: onLocateReadyReadStdOut(); break;
-        case 5: onQuit(); break;
+        case 2: onTrayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
+        case 3: onLocateReadyReadStdOut(); break;
+        case 4: onQuit(); break;
+        case 5: onOpenFile(); break;
+        case 6: onOpenFolder(); break;
         default: ;
         }
-        _id -= 6;
+        _id -= 7;
     }
     return _id;
 }

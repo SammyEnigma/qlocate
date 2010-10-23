@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Search</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -58,6 +58,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="checkBoxSearchOnlyHome">
+       <property name="text">
+        <string>Search only home</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -75,19 +85,9 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QCheckBox" name="checkBoxCloseAftrLaunch">
+      <widget class="QCheckBox" name="checkBoxCloseAfterLaunch">
        <property name="text">
         <string>Close after launch</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxSearchOnlyHome">
-       <property name="text">
-        <string>Search only home</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -111,6 +111,20 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="pushButtonOpenFile">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonOpenFolder">
+       <property name="text">
+        <string>Open Folder</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
@@ -138,22 +152,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections>
-  <connection>
-   <sender>listWidget</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>Dialog</receiver>
-   <slot>onOpenFile(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>58</x>
-     <y>107</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>71</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>find</sender>
    <signal>clicked()</signal>
@@ -202,11 +200,61 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButtonOpenFile</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>onOpenFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listWidget</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>pushButtonOpenFile</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>39</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>85</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonOpenFolder</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>onOpenFolder()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>157</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>234</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFind()</slot>
   <slot>onOpenFile(QModelIndex)</slot>
   <slot>onTextEdited(QString)</slot>
   <slot>onQuit()</slot>
+  <slot>onOpenFile()</slot>
+  <slot>onOpenFolder()</slot>
  </slots>
 </ui>

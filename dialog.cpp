@@ -5,6 +5,7 @@
 #include <QCloseEvent>
 #include <QDir>
 #include <QMessageBox>
+#include <QListWidgetItem>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -76,17 +77,6 @@ void Dialog::onLocateFinished(int nExitCode)
     locate->deleteLater();
 }
 
-void Dialog::onOpenFile(QModelIndex ii)
-{
-    QProcess::startDetached(
-            "/usr/bin/xdg-open",
-            QStringList(ii.data().toString())
-            );
-
-    if (ui->checkBoxCloseAftrLaunch->isChecked())
-        hide();
-}
-
 void Dialog::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
@@ -106,7 +96,7 @@ void Dialog::closeEvent(QCloseEvent *event)
 
 void Dialog::onLocateReadyReadStdOut()
 {
-    lastPartialLine += locate->readAllStandardOutput();
+    lastPartialLine += QString::fromUtf8(locate->readAllStandardOutput());
     QStringList list = lastPartialLine.split('\n');
     lastPartialLine = list.back();
     list.pop_back();
@@ -119,4 +109,32 @@ void Dialog::onQuit()
 {
     quit = true;
     close();
+}
+
+void Dialog::onOpenFile()
+{
+    if ( ui->listWidget->currentItem()->isSelected())
+    {
+         QProcess::startDetached(
+                 "/usr/bin/xdg-open",
+                 QStringList(ui->listWidget->currentIndex().data().toString())
+                 );
+
+         if (ui->checkBoxCloseAfterLaunch->isChecked())
+             hide();
+    }
+}
+
+void Dialog::onOpenFolder()
+{
+    if ( ui->listWidget->currentItem()->isSelected())
+    {
+        QProcess::startDetached(
+                 "/usr/bin/xdg-open",
+                 QStringList(ui->listWidget->currentIndex().data().toString().remove(QRegExp("/[^/]+$")))
+                 );
+
+        if (ui->checkBoxCloseAfterLaunch->isChecked())
+            hide();
+    }
 }

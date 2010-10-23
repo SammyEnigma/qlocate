@@ -3,7 +3,6 @@
 
 #include <QSystemTrayIcon>
 #include <QDialog>
-#include <QModelIndex>
 
 class QProcess;
 
@@ -20,10 +19,11 @@ public:
 private slots:
     void onFind();
     void onLocateFinished(int);
-    void onOpenFile(QModelIndex i);
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason);
     void onLocateReadyReadStdOut();
     void onQuit();
+    void onOpenFile();
+    void onOpenFolder();
 
 private:
     void changeEvent(QEvent *e);
