@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>edit-find.svg</file>
+    </qresource>
+</RCC>
