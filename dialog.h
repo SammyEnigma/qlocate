@@ -5,6 +5,7 @@
 #include <QDialog>
 
 class QProcess;
+class QTimer;
 
 namespace Ui {
     class Dialog;
@@ -36,6 +37,7 @@ private:
     QString homeDir;
     QString lastPartialLine;
     bool quit;
+    QTimer* timer;
 };
 
 #endif // DIALOG_H

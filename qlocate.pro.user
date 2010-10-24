@@ -78,26 +78,29 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-lmPT8rCAxF,guid=e207055b8e362998d428ea284cc2acc8</value>
-    <value type="QString">DBUS_STARTER_ADDRESS=unix:abstract=/tmp/dbus-lmPT8rCAxF,guid=e207055b8e362998d428ea284cc2acc8</value>
-    <value type="QString">DBUS_STARTER_BUS_TYPE=session</value>
     <value type="QString">DEFAULTS_PATH=/usr/share/gconf/xubuntu.default.path</value>
     <value type="QString">DESKTOP_SESSION=xubuntu</value>
     <value type="QString">DISPLAY=:0.0</value>
     <value type="QString">GDMSESSION=xubuntu</value>
     <value type="QString">GDM_KEYBOARD_LAYOUT=us</value>
-    <value type="QString">GDM_LANG=en_US.utf8</value>
+    <value type="QString">GLADE_CATALOG_PATH=:/usr/share/glade3/catalogs</value>
+    <value type="QString">GLADE_MODULE_PATH=:/usr/lib/glade3/modules</value>
+    <value type="QString">GLADE_PIXMAP_PATH=:/usr/share/glade3/pixmaps</value>
     <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-yKSZtI</value>
     <value type="QString">GNOME_KEYRING_PID=3361</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">GTK_PATH=:/usr/lib/gtk-2.0</value>
     <value type="QString">HOME=/home/sas</value>
     <value type="QString">LANG=en_US.utf8</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib/qtcreator</value>
+    <value type="QString">LIBGLADE_MODULE_PATH=:/usr/lib/libglade/2.0</value>
     <value type="QString">LOGNAME=sas</value>
     <value type="QString">MANDATORY_PATH=/usr/share/gconf/xubuntu.mandatory.path</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-sas</value>
     <value type="QString">PATH=/usr/bin:/home/sas/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
-    <value type="QString">PWD=/home/sas/workspace/qlocate</value>
+    <value type="QString">PWD=/home/sas</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
+    <value type="QString">SESSION_MANAGER=local/sas-laptop:@/tmp/.ICE-unix/3436,unix/sas-laptop:/tmp/.ICE-unix/3436</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SPEECHD_PORT=7560</value>
     <value type="QString">SSH_AGENT_PID=3418</value>
@@ -106,6 +109,7 @@
     <value type="QString">USERNAME=sas</value>
     <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-sas-dqTCC6/database</value>
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg</value>
+    <value type="QString">XDG_DATA_DIRS=/etc/xdg/xdg-xubuntu:/usr/local/share:/usr/share</value>
     <value type="QString">XDG_SESSION_COOKIE=41d85f734625e51340693f6b4bef046b-1287826632.147309-1287363938</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
@@ -126,26 +130,29 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-lmPT8rCAxF,guid=e207055b8e362998d428ea284cc2acc8</value>
-    <value type="QString">DBUS_STARTER_ADDRESS=unix:abstract=/tmp/dbus-lmPT8rCAxF,guid=e207055b8e362998d428ea284cc2acc8</value>
-    <value type="QString">DBUS_STARTER_BUS_TYPE=session</value>
     <value type="QString">DEFAULTS_PATH=/usr/share/gconf/xubuntu.default.path</value>
     <value type="QString">DESKTOP_SESSION=xubuntu</value>
     <value type="QString">DISPLAY=:0.0</value>
     <value type="QString">GDMSESSION=xubuntu</value>
     <value type="QString">GDM_KEYBOARD_LAYOUT=us</value>
-    <value type="QString">GDM_LANG=en_US.utf8</value>
+    <value type="QString">GLADE_CATALOG_PATH=:/usr/share/glade3/catalogs</value>
+    <value type="QString">GLADE_MODULE_PATH=:/usr/lib/glade3/modules</value>
+    <value type="QString">GLADE_PIXMAP_PATH=:/usr/share/glade3/pixmaps</value>
     <value type="QString">GNOME_KEYRING_CONTROL=/tmp/keyring-yKSZtI</value>
     <value type="QString">GNOME_KEYRING_PID=3361</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
+    <value type="QString">GTK_PATH=:/usr/lib/gtk-2.0</value>
     <value type="QString">HOME=/home/sas</value>
     <value type="QString">LANG=en_US.utf8</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib/qtcreator</value>
+    <value type="QString">LIBGLADE_MODULE_PATH=:/usr/lib/libglade/2.0</value>
     <value type="QString">LOGNAME=sas</value>
     <value type="QString">MANDATORY_PATH=/usr/share/gconf/xubuntu.mandatory.path</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-sas</value>
     <value type="QString">PATH=/usr/bin:/home/sas/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
-    <value type="QString">PWD=/home/sas/workspace/qlocate</value>
+    <value type="QString">PWD=/home/sas</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
+    <value type="QString">SESSION_MANAGER=local/sas-laptop:@/tmp/.ICE-unix/3436,unix/sas-laptop:/tmp/.ICE-unix/3436</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SPEECHD_PORT=7560</value>
     <value type="QString">SSH_AGENT_PID=3418</value>
@@ -154,6 +161,7 @@
     <value type="QString">USERNAME=sas</value>
     <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-sas-dqTCC6/database</value>
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg</value>
+    <value type="QString">XDG_DATA_DIRS=/etc/xdg/xdg-xubuntu:/usr/local/share:/usr/share</value>
     <value type="QString">XDG_SESSION_COOKIE=41d85f734625e51340693f6b4bef046b-1287826632.147309-1287363938</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>

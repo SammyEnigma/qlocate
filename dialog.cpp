@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QTimer>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -18,6 +19,12 @@ Dialog::Dialog(QWidget *parent) :
     trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
     homeDir = QDir::homePath();
     quit = false;
+    timer = new QTimer(this);
+    timer->setInterval(1000);
+    timer->setSingleShot(true);
+    connect(timer, SIGNAL(timeout()), ui->find, SIGNAL(clicked()));
+    connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
+    locate = NULL;
 }
 
 Dialog::~Dialog()
@@ -42,11 +49,11 @@ void Dialog::onFind()
     if (ui->lineEdit->text().isEmpty())
         return;
 
+    delete locate;
     locate = new QProcess(this);
     connect(locate, SIGNAL(finished(int)), this, SLOT(onLocateFinished(int)));
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(onLocateReadyReadStdOut()));
     ui->listWidget->clear();
-    ui->find->setEnabled(false);
 
     // the arguments to pass to locate
     QStringList args;
@@ -73,8 +80,8 @@ void Dialog::onLocateFinished(int nExitCode)
         ui->listWidget->clear();
     }
 
-    ui->find->setEnabled(true);
     locate->deleteLater();
+    locate = NULL;
 }
 
 void Dialog::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
