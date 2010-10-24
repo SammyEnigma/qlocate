@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dialog.ui'
 **
-** Created: Sat Oct 23 23:00:53 2010
+** Created: Sun Oct 24 15:58:26 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -47,6 +47,7 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QPushButton *pushButtonOpenFile;
     QPushButton *pushButtonOpenFolder;
+    QPushButton *pushButtonUpdateDB;
     QSpacerItem *horizontalSpacer_3;
     QPushButton *pushButton;
 
@@ -141,6 +142,11 @@ public:
 
         horizontalLayout_4->addWidget(pushButtonOpenFolder);
 
+        pushButtonUpdateDB = new QPushButton(Dialog);
+        pushButtonUpdateDB->setObjectName(QString::fromUtf8("pushButtonUpdateDB"));
+
+        horizontalLayout_4->addWidget(pushButtonUpdateDB);
+
         horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_4->addItem(horizontalSpacer_3);
@@ -161,6 +167,7 @@ public:
         QObject::connect(pushButtonOpenFile, SIGNAL(clicked()), Dialog, SLOT(onOpenFile()));
         QObject::connect(listWidget, SIGNAL(doubleClicked(QModelIndex)), pushButtonOpenFile, SLOT(click()));
         QObject::connect(pushButtonOpenFolder, SIGNAL(clicked()), Dialog, SLOT(onOpenFolder()));
+        QObject::connect(pushButtonUpdateDB, SIGNAL(clicked()), Dialog, SLOT(onUpdateDB()));
 
         QMetaObject::connectSlotsByName(Dialog);
     } // setupUi
@@ -176,6 +183,7 @@ public:
         checkBoxCloseAfterLaunch->setText(QApplication::translate("Dialog", "Close after launch", 0, QApplication::UnicodeUTF8));
         pushButtonOpenFile->setText(QApplication::translate("Dialog", "Open", 0, QApplication::UnicodeUTF8));
         pushButtonOpenFolder->setText(QApplication::translate("Dialog", "Open Folder", 0, QApplication::UnicodeUTF8));
+        pushButtonUpdateDB->setText(QApplication::translate("Dialog", "UpdateDB", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("Dialog", "Quit", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

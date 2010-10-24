@@ -145,3 +145,11 @@ void Dialog::onOpenFolder()
             hide();
     }
 }
+
+void Dialog::onUpdateDB()
+{
+    QProcess::startDetached(
+             "gksudo",
+             QStringList("updatedb")
+             );
+}

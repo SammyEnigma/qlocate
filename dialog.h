@@ -25,6 +25,7 @@ private slots:
     void onQuit();
     void onOpenFile();
     void onOpenFolder();
+    void onUpdateDB();
 
 private:
     void changeEvent(QEvent *e);

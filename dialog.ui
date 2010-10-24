@@ -126,6 +126,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonUpdateDB">
+       <property name="text">
+        <string>UpdateDB</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -248,6 +255,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButtonUpdateDB</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>onUpdateDB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>239</x>
+     <y>282</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>364</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFind()</slot>
@@ -256,5 +279,6 @@
   <slot>onQuit()</slot>
   <slot>onOpenFile()</slot>
   <slot>onOpenFolder()</slot>
+  <slot>onUpdateDB()</slot>
  </slots>
 </ui>
