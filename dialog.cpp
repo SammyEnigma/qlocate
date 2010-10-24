@@ -7,24 +7,38 @@
 #include <QMessageBox>
 #include <QListWidgetItem>
 #include <QTimer>
+#include <QMenu>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
-    trayIcon = new QSystemTrayIcon(this);
+    quit = false;
+    QTimer* timer = new QTimer(this);
+    timer->setInterval(500);
+    timer->setSingleShot(true);
+    connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
+    locate = NULL;
+
+    connect(ui->checkBoxCaseSensitive, SIGNAL(stateChanged(int)), timer, SLOT(start()));
+    connect(ui->checkBoxRegExp, SIGNAL(stateChanged(int)), timer, SLOT(start()));
+    connect(ui->checkBoxSearchOnlyHome, SIGNAL(stateChanged(int)), timer, SLOT(start()));
+    connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
+
+    // setup the tray icon
+    QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
     trayIcon->setVisible(true);
     trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
-    homeDir = QDir::homePath();
-    quit = false;
-    timer = new QTimer(this);
-    timer->setInterval(1000);
-    timer->setSingleShot(true);
-    connect(timer, SIGNAL(timeout()), ui->find, SIGNAL(clicked()));
-    connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
-    locate = NULL;
+    QMenu* trayIconContextMenu = new QMenu;
+    trayIconContextMenu->addAction("Update Database", this, SLOT(onUpdateDB()));
+    trayIconContextMenu->addAction("Quit", this, SLOT(onQuit()));
+    trayIcon->setContextMenu(trayIconContextMenu);
+
+    oldCaseSensitive = false;
+    oldUseRegExp = false;
+    oldSearchOnlyHome = false;
 }
 
 Dialog::~Dialog()
@@ -46,14 +60,27 @@ void Dialog::changeEvent(QEvent *e)
 
 void Dialog::onFind()
 {
+    if (oldFindString == ui->lineEdit->text() &&
+        oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
+        oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
+        oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked())
+    {
+        return;
+    }
+
+    oldUseRegExp = ui->checkBoxRegExp->isChecked();
+    oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
+    oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
+    oldFindString = ui->lineEdit->text();
+    delete locate;
+    locate = NULL;
+    ui->listWidget->clear();
+
     if (ui->lineEdit->text().isEmpty())
         return;
 
-    delete locate;
     locate = new QProcess(this);
-    connect(locate, SIGNAL(finished(int)), this, SLOT(onLocateFinished(int)));
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(onLocateReadyReadStdOut()));
-    ui->listWidget->clear();
 
     // the arguments to pass to locate
     QStringList args;
@@ -65,23 +92,6 @@ void Dialog::onFind()
     args << ui->lineEdit->text();
 
     locate->start("locate", args);
-}
-
-void Dialog::onLocateFinished(int nExitCode)
-{
-    // check exit code for errors
-    if (nExitCode == 0)
-    {
-        onLocateReadyReadStdOut();
-    }
-    else
-    {
-        QMessageBox::critical(this, "qlocate - there was an error.", QString("locate finished with exit code %1").arg(nExitCode));
-        ui->listWidget->clear();
-    }
-
-    locate->deleteLater();
-    locate = NULL;
 }
 
 void Dialog::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -108,7 +118,7 @@ void Dialog::onLocateReadyReadStdOut()
     lastPartialLine = list.back();
     list.pop_back();
     if (ui->checkBoxSearchOnlyHome->isChecked())
-        list = list.filter(QRegExp(QString("^%1").arg(QRegExp::escape(homeDir))));
+        list = list.filter(QRegExp(QString("^%1/").arg(QRegExp::escape(QDir::homePath()))));
     ui->listWidget->addItems(list);
 }
 
@@ -120,36 +130,17 @@ void Dialog::onQuit()
 
 void Dialog::onOpenFile()
 {
-    if ( ui->listWidget->currentItem()->isSelected())
-    {
-         QProcess::startDetached(
-                 "/usr/bin/xdg-open",
-                 QStringList(ui->listWidget->currentIndex().data().toString())
-                 );
-
-         if (ui->checkBoxCloseAfterLaunch->isChecked())
-             hide();
-    }
+    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data().toString()));
 }
 
 void Dialog::onOpenFolder()
 {
-    if ( ui->listWidget->currentItem()->isSelected())
-    {
-        QProcess::startDetached(
-                 "/usr/bin/xdg-open",
-                 QStringList(ui->listWidget->currentIndex().data().toString().remove(QRegExp("/[^/]+$")))
-                 );
-
-        if (ui->checkBoxCloseAfterLaunch->isChecked())
-            hide();
-    }
+    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data().toString().remove(QRegExp("/[^/]+$"))));
 }
 
 void Dialog::onUpdateDB()
 {
-    QProcess::startDetached(
-             "gksudo",
-             QStringList("updatedb")
-             );
+    QProcess::startDetached("gksudo", QStringList("updatedb"));
 }

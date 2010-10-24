@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>504</width>
-    <height>303</height>
+    <width>429</width>
+    <height>263</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,16 +25,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lineEdit"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="find">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Find</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
@@ -83,33 +73,6 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QCheckBox" name="checkBoxCloseAfterLaunch">
-       <property name="text">
-        <string>Close after launch</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QPushButton" name="pushButtonOpenFile">
@@ -126,13 +89,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonUpdateDB">
-       <property name="text">
-        <string>UpdateDB</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -145,13 +101,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Quit</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
@@ -160,66 +109,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>find</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>onFind()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>451</x>
-     <y>23</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>498</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>find</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>368</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>457</x>
-     <y>19</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>onQuit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>464</x>
-     <y>276</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>451</x>
-     <y>227</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButtonOpenFile</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>onOpenFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>275</y>
+     <x>64</x>
+     <y>252</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
-     <y>248</y>
+     <y>224</y>
     </hint>
    </hints>
   </connection>
@@ -230,12 +131,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>140</y>
+     <x>48</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>278</y>
+     <x>94</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
@@ -246,28 +147,12 @@
    <slot>onOpenFolder()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>275</y>
+     <x>185</x>
+     <y>252</y>
     </hint>
     <hint type="destinationlabel">
      <x>234</x>
-     <y>258</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButtonUpdateDB</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>onUpdateDB()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>239</x>
-     <y>282</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>364</x>
-     <y>264</y>
+     <y>224</y>
     </hint>
    </hints>
   </connection>

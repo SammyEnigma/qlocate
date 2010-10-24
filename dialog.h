@@ -5,7 +5,6 @@
 #include <QDialog>
 
 class QProcess;
-class QTimer;
 
 namespace Ui {
     class Dialog;
@@ -19,7 +18,6 @@ public:
 
 private slots:
     void onFind();
-    void onLocateFinished(int);
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason);
     void onLocateReadyReadStdOut();
     void onQuit();
@@ -34,11 +32,12 @@ private:
 private:
     Ui::Dialog *ui;
     QProcess* locate;
-    QSystemTrayIcon *trayIcon;
-    QString homeDir;
     QString lastPartialLine;
     bool quit;
-    QTimer* timer;
+    QString oldFindString;
+    bool oldCaseSensitive;
+    bool oldUseRegExp;
+    bool oldSearchOnlyHome;
 };
 
 #endif // DIALOG_H
