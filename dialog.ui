@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>263</height>
+    <width>443</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,9 +27,6 @@
       <widget class="QLineEdit" name="lineEdit"/>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QListWidget" name="listWidget"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -73,35 +70,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QPushButton" name="pushButtonOpenFile">
-       <property name="text">
-        <string>Open</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonOpenFolder">
-       <property name="text">
-        <string>Open Folder</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+    <widget class="QListWidget" name="listWidget"/>
    </item>
   </layout>
  </widget>
@@ -109,50 +78,66 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButtonOpenFile</sender>
-   <signal>clicked()</signal>
+   <sender>checkBoxCaseSensitive</sender>
+   <signal>toggled(bool)</signal>
    <receiver>Dialog</receiver>
-   <slot>onOpenFile()</slot>
+   <slot>onFind()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>252</y>
+     <x>72</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
-     <x>274</x>
-     <y>224</y>
+     <x>421</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxRegExp</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Dialog</receiver>
+   <slot>onFind()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>393</x>
+     <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxSearchOnlyHome</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>onFind()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>268</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>listWidget</sender>
    <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>pushButtonOpenFile</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>124</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>94</x>
-     <y>252</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButtonOpenFolder</sender>
-   <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>onOpenFolder()</slot>
+   <slot>onOpenFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>252</y>
+     <x>372</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>224</y>
+     <x>444</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>

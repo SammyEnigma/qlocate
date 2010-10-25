@@ -24,6 +24,7 @@ private slots:
     void onOpenFile();
     void onOpenFolder();
     void onUpdateDB();
+    void onContextMenu(QPoint p);
 
 private:
     void changeEvent(QEvent *e);
@@ -38,6 +39,7 @@ private:
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
+    QMenu* listWidgetContextMenu;
 };
 
 #endif // DIALOG_H

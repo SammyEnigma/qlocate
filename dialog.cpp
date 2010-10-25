@@ -21,9 +21,6 @@ Dialog::Dialog(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
     locate = NULL;
 
-    connect(ui->checkBoxCaseSensitive, SIGNAL(stateChanged(int)), timer, SLOT(start()));
-    connect(ui->checkBoxRegExp, SIGNAL(stateChanged(int)), timer, SLOT(start()));
-    connect(ui->checkBoxSearchOnlyHome, SIGNAL(stateChanged(int)), timer, SLOT(start()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
 
     // setup the tray icon
@@ -39,6 +36,13 @@ Dialog::Dialog(QWidget *parent) :
     oldCaseSensitive = false;
     oldUseRegExp = false;
     oldSearchOnlyHome = false;
+
+    // set widget context menu
+    ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenu(QPoint)));
+    listWidgetContextMenu = new QMenu(this);
+    listWidgetContextMenu->addAction("Open File", this, SLOT(onOpenFile()));
+    listWidgetContextMenu->addAction("Open Folder", this, SLOT(onOpenFolder()));
 }
 
 Dialog::~Dialog()
@@ -143,4 +147,9 @@ void Dialog::onOpenFolder()
 void Dialog::onUpdateDB()
 {
     QProcess::startDetached("gksudo", QStringList("updatedb"));
+}
+
+void Dialog::onContextMenu(QPoint p)
+{
+    listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
 }
