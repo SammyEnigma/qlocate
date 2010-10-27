@@ -25,6 +25,8 @@ private slots:
     void onOpenFolder();
     void onUpdateDB();
     void onContextMenu(QPoint p);
+    void locateFinished(int exitCode);
+    void undoRedSearchbox();
 
 private:
     void changeEvent(QEvent *e);
@@ -40,6 +42,7 @@ private:
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
     QMenu* listWidgetContextMenu;
+    bool searchBoxIsRed;
 };
 
 #endif // DIALOG_H

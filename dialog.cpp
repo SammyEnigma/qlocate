@@ -22,6 +22,7 @@ Dialog::Dialog(QWidget *parent) :
     locate = NULL;
 
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
+    connect(ui->lineEdit, SIGNAL(textEdited(QString)), this, SLOT(undoRedSearchbox()));
 
     // setup the tray icon
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
@@ -36,6 +37,7 @@ Dialog::Dialog(QWidget *parent) :
     oldCaseSensitive = false;
     oldUseRegExp = false;
     oldSearchOnlyHome = false;
+    searchBoxIsRed = false;
 
     // set widget context menu
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -85,6 +87,7 @@ void Dialog::onFind()
 
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(onLocateReadyReadStdOut()));
+    connect(locate, SIGNAL(finished(int)), this, SLOT(locateFinished(int)));
 
     // the arguments to pass to locate
     QStringList args;
@@ -152,4 +155,24 @@ void Dialog::onUpdateDB()
 void Dialog::onContextMenu(QPoint p)
 {
     listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
+}
+
+void Dialog::locateFinished(int exitCode)
+{
+    if (exitCode && ui->lineEdit->text() == oldFindString)
+    {
+        QPalette palette = ui->lineEdit->palette();
+        palette.setColor(QPalette::Text, Qt::red);
+        ui->lineEdit->setPalette(palette);
+        searchBoxIsRed = true;
+    }
+}
+
+void Dialog::undoRedSearchbox()
+{
+    if (searchBoxIsRed)
+    {
+        ui->lineEdit->setPalette(QPalette());
+        searchBoxIsRed = false;
+    }
 }
