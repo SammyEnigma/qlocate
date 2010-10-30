@@ -111,6 +111,11 @@ void Dialog::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
     {
+        if (!isVisible())
+        {
+            ui->lineEdit->selectAll();
+            ui->lineEdit->setFocus();
+        }
         setVisible(!isVisible());
     }
 }
