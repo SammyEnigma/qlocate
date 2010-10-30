@@ -172,9 +172,9 @@ void Dialog::onContextMenu(QPoint p)
     listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
 }
 
-void Dialog::locateFinished(int exitCode)
+void Dialog::locateFinished(int /*exitCode*/)
 {
-    if (exitCode && ui->lineEdit->text() == oldFindString)
+    if (ui->listWidget->count() == 0 && ui->lineEdit->text() == oldFindString)
     {
         QPalette palette = ui->lineEdit->palette();
         palette.setColor(QPalette::Text, Qt::red);
