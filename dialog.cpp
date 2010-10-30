@@ -8,6 +8,7 @@
 #include <QListWidgetItem>
 #include <QTimer>
 #include <QMenu>
+#include <QFileIconProvider>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -78,8 +79,13 @@ void Dialog::onFind()
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
     oldFindString = ui->lineEdit->text();
-    delete locate;
-    locate = NULL;
+    if (locate)
+    {
+        locate->terminate();
+        locate->waitForFinished();
+        delete locate;
+        locate = NULL;
+    }
     ui->listWidget->clear();
 
     if (ui->lineEdit->text().isEmpty())
@@ -126,7 +132,11 @@ void Dialog::onLocateReadyReadStdOut()
     list.pop_back();
     if (ui->checkBoxSearchOnlyHome->isChecked())
         list = list.filter(QRegExp(QString("^%1/").arg(QRegExp::escape(QDir::homePath()))));
-    ui->listWidget->addItems(list);
+    for (QStringList::const_iterator ii = list.begin(); ii != list.end(); ii++)
+    {
+        QFileIconProvider provider;
+        new QListWidgetItem(provider.icon(QFileInfo(*ii)), *ii, ui->listWidget);
+    }
 }
 
 void Dialog::onQuit()
