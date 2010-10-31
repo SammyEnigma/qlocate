@@ -167,14 +167,16 @@ void Dialog::onQuit()
 
 void Dialog::onOpenFile()
 {
+    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(Qt::ToolTipRole).toString()));
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(role).toString()));
 }
 
 void Dialog::onOpenFolder()
 {
+    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(Qt::ToolTipRole).toString().remove(QRegExp("/[^/]+$"))));
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(role).toString().remove(QRegExp("/[^/]+$"))));
 }
 
 void Dialog::onUpdateDB()
