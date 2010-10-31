@@ -37,7 +37,8 @@ Dialog::Dialog(QWidget *parent) :
 
     oldCaseSensitive = false;
     oldUseRegExp = false;
-    oldSearchOnlyHome = false;
+    oldSearchOnlyHome = true;
+    oldShowFullPath = false;
     searchBoxIsRed = false;
 
     // set widget context menu
@@ -68,6 +69,7 @@ void Dialog::changeEvent(QEvent *e)
 void Dialog::onFind()
 {
     if (oldFindString == ui->lineEdit->text() &&
+        oldShowFullPath == ui->checkBoxShowFullPath->isChecked() &&
         oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
         oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
         oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked())
@@ -75,6 +77,7 @@ void Dialog::onFind()
         return;
     }
 
+    oldShowFullPath = ui->checkBoxShowFullPath->isChecked();
     oldUseRegExp = ui->checkBoxRegExp->isChecked();
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
@@ -137,10 +140,22 @@ void Dialog::onLocateReadyReadStdOut()
     list.pop_back();
     if (ui->checkBoxSearchOnlyHome->isChecked())
         list = list.filter(QRegExp(QString("^%1/").arg(QRegExp::escape(QDir::homePath()))));
+    QFileIconProvider provider;
     for (QStringList::const_iterator ii = list.begin(); ii != list.end(); ii++)
     {
-        QFileIconProvider provider;
-        new QListWidgetItem(provider.icon(QFileInfo(*ii)), *ii, ui->listWidget);
+        const QString& filename = *ii;
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setIcon(provider.icon(QFileInfo(filename)));
+        if (ui->checkBoxShowFullPath->isChecked())
+        {
+            item->setData(Qt::DisplayRole, filename);
+        }
+        else
+        {
+            item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf('/')+1));
+            item->setData(Qt::ToolTipRole, filename);
+        }
+        ui->listWidget->addItem(item);
     }
 }
 
@@ -153,13 +168,13 @@ void Dialog::onQuit()
 void Dialog::onOpenFile()
 {
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data().toString()));
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(Qt::ToolTipRole).toString()));
 }
 
 void Dialog::onOpenFolder()
 {
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data().toString().remove(QRegExp("/[^/]+$"))));
+        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(Qt::ToolTipRole).toString().remove(QRegExp("/[^/]+$"))));
 }
 
 void Dialog::onUpdateDB()

@@ -41,6 +41,7 @@ private:
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
+    bool oldShowFullPath;
     QMenu* listWidgetContextMenu;
     bool searchBoxIsRed;
 };

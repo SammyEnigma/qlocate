@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>391</width>
-    <height>210</height>
+    <width>493</width>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,6 +48,13 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxShowFullPath">
+       <property name="text">
+        <string>Show full path</string>
        </property>
       </widget>
      </item>
@@ -108,7 +115,7 @@
   </connection>
   <connection>
    <sender>checkBoxSearchOnlyHome</sender>
-   <signal>clicked()</signal>
+   <signal>toggled(bool)</signal>
    <receiver>Dialog</receiver>
    <slot>onFind()</slot>
    <hints>
@@ -118,7 +125,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>277</x>
-     <y>268</y>
+     <y>209</y>
     </hint>
    </hints>
   </connection>
@@ -129,12 +136,28 @@
    <slot>onOpenFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>216</y>
+     <x>381</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
      <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxShowFullPath</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Dialog</receiver>
+   <slot>onFind()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>450</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>492</x>
+     <y>45</y>
     </hint>
    </hints>
   </connection>
