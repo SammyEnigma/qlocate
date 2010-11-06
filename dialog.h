@@ -18,15 +18,14 @@ public:
 
 private slots:
     void onFind();
-    void onTrayIconActivated(QSystemTrayIcon::ActivationReason);
-    void onLocateReadyReadStdOut();
-    void onQuit();
-    void onOpenFile();
-    void onOpenFolder();
-    void onUpdateDB();
-    void onContextMenu(QPoint p);
+    void toggleDialogVisible(QSystemTrayIcon::ActivationReason);
+    void readLocateOutput();
+    void quit();
+    void openFile();
+    void openFolder();
+    void startUpdateDB();
+    void showContextMenu(QPoint p);
     void locateFinished(int exitCode);
-    void undoRedSearchbox();
 
 private:
     void changeEvent(QEvent *e);
@@ -36,14 +35,14 @@ private:
     Ui::Dialog *ui;
     QProcess* locate;
     QString lastPartialLine;
-    bool quit;
+    bool reallyQuit;
     QString oldFindString;
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
     bool oldShowFullPath;
     QMenu* listWidgetContextMenu;
-    bool searchBoxIsRed;
+    QPalette originalLabelPalette;
 };
 
 #endif // DIALOG_H
