@@ -159,7 +159,7 @@ void Dialog::toggleDialogVisible(QSystemTrayIcon::ActivationReason reason)
 
 void Dialog::closeEvent(QCloseEvent *event)
 {
-    if (locate->state() == QProcess::Running)
+    if (locate)
         locate->terminate();
     if (!reallyQuit)
     {
