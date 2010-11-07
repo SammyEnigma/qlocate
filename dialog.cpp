@@ -15,19 +15,28 @@ Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog)
 {
+    // initialize misc. variables
     ui->setupUi(this);
     reallyQuit = false;
-    QTimer* timer = new QTimer(this);
-    timer->setInterval(500);
-    timer->setSingleShot(true);
-    connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
     locate = NULL;
     originalLabelPalette = ui->labelStatus->palette();
     iconProvider = new QFileIconProvider;
 
+    // initialize the auto-search timer
+    // there is no find/search button in our app
+    // application starts searching automatically
+    // a fixed time interval after last key typed by user
+    QTimer* timer = new QTimer(this);
+    timer->setInterval(500);
+    timer->setSingleShot(true);
+    connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
 
-    // setup the tray icon
+    // initialize the tray icon
+    // the application resides in the tray and when
+    // user clicks on the tray icon the dialog is shown
+    // this is to speed things up (no process loading and
+    // initialization, so the app is more responsive)
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleDialogVisible(QSystemTrayIcon::ActivationReason)));
     trayIcon->setVisible(true);
@@ -37,18 +46,21 @@ Dialog::Dialog(QWidget *parent) :
     trayIconContextMenu->addAction("Quit", this, SLOT(quit()));
     trayIcon->setContextMenu(trayIconContextMenu);
 
-    oldCaseSensitive = false;
-    oldUseRegExp = false;
-    oldSearchOnlyHome = true;
-    oldShowFullPath = false;
-
-    // set widget context menu
+    // initialize list widget context menu
+    // the user can right click on a found file to pop up the context menu
+    // the context menu can be used to open the selected file (this is "Open File")
+    // or to open the folder in which the selected file is (this is "Open Folder")
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     listWidgetContextMenu = new QMenu(this);
     listWidgetContextMenu->addAction("Open File", this, SLOT(openFile()));
     listWidgetContextMenu->addAction("Open Folder", this, SLOT(openFolder()));
 
+    // initialize the checkboxes for various options
+    oldCaseSensitive = false;
+    oldUseRegExp = false;
+    oldSearchOnlyHome = true;
+    oldShowFullPath = false;
     connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(onFind()));
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(onFind()));
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(onFind()));
