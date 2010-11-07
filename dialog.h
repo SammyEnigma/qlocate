@@ -5,6 +5,7 @@
 #include <QDialog>
 
 class QProcess;
+class QFileIconProvider;
 
 namespace Ui {
     class Dialog;
@@ -43,6 +44,7 @@ private:
     bool oldShowFullPath;
     QMenu* listWidgetContextMenu;
     QPalette originalLabelPalette;
+    QFileIconProvider* iconProvider;
 };
 
 #endif // DIALOG_H

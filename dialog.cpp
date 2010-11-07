@@ -23,6 +23,7 @@ Dialog::Dialog(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
     locate = NULL;
     originalLabelPalette = ui->labelStatus->palette();
+    iconProvider = new QFileIconProvider;
 
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
 
@@ -57,6 +58,7 @@ Dialog::Dialog(QWidget *parent) :
 
 Dialog::~Dialog()
 {
+    delete iconProvider;
     delete ui;
 }
 
@@ -154,12 +156,11 @@ void Dialog::readLocateOutput()
     list.pop_back();
     if (ui->checkBoxSearchOnlyHome->isChecked())
         list = list.filter(QRegExp(QString("^%1/").arg(QRegExp::escape(QDir::homePath()))));
-    QFileIconProvider provider;
-    for (QStringList::const_iterator ii = list.begin(); ii != list.end(); ii++)
+
+    foreach (const QString& filename, list)
     {
-        const QString& filename = *ii;
         QListWidgetItem* item = new QListWidgetItem;
-        item->setIcon(provider.icon(QFileInfo(filename)));
+        item->setIcon(iconProvider->icon(QFileInfo(filename)));
         if (ui->checkBoxShowFullPath->isChecked())
         {
             item->setData(Qt::DisplayRole, filename);
