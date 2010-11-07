@@ -22,15 +22,22 @@ Dialog::Dialog(QWidget *parent) :
     originalLabelPalette = ui->labelStatus->palette();
     iconProvider = new QFileIconProvider;
 
+    // show the app is busy searching by making an animation of sorts,
+    // this is done by showing ellipsis after "Searching "one at a time
+    // "Searching.", "Searching..", "Searching..."
+    animateEllipsisTimer = new QTimer(this);
+    connect(animateEllipsisTimer, SIGNAL(timeout()), this, SLOT(animateEllipsis()));
+    animateEllipsisTimer->setInterval(333);
+
     // initialize the auto-search timer
-    // there is no find/search button in our app
+    // there is no search button in our app
     // application starts searching automatically
     // a fixed time interval after last key typed by user
-    QTimer* timer = new QTimer(this);
-    timer->setInterval(500);
-    timer->setSingleShot(true);
-    connect(timer, SIGNAL(timeout()), this, SLOT(onFind()));
-    connect(ui->lineEdit, SIGNAL(textEdited(QString)), timer, SLOT(start()));
+    QTimer* autoStartSearchTimer = new QTimer(this);
+    autoStartSearchTimer->setInterval(500);
+    autoStartSearchTimer->setSingleShot(true);
+    connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startLocate()));
+    connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
 
     // initialize the tray icon
     // the application resides in the tray and when
@@ -39,8 +46,8 @@ Dialog::Dialog(QWidget *parent) :
     // initialization, so the app is more responsive)
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleDialogVisible(QSystemTrayIcon::ActivationReason)));
-    trayIcon->setVisible(true);
     trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
+    trayIcon->setVisible(true);
     QMenu* trayIconContextMenu = new QMenu;
     trayIconContextMenu->addAction("Update Database", this, SLOT(startUpdateDB()));
     trayIconContextMenu->addAction("Quit", this, SLOT(quit()));
@@ -61,10 +68,10 @@ Dialog::Dialog(QWidget *parent) :
     oldUseRegExp = false;
     oldSearchOnlyHome = true;
     oldShowFullPath = false;
-    connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(onFind()));
-    connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(onFind()));
-    connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(onFind()));
-    connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(onFind()));
+    connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->listWidget, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openFile()));
 }
 
@@ -86,9 +93,9 @@ void Dialog::changeEvent(QEvent *e)
     }
 }
 
-void Dialog::onFind()
+void Dialog::startLocate()
 {
-    if (oldFindString == ui->lineEdit->text() &&
+    if (oldSearchString == ui->lineEdit->text() &&
         oldShowFullPath == ui->checkBoxShowFullPath->isChecked() &&
         oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
         oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
@@ -101,7 +108,7 @@ void Dialog::onFind()
     oldUseRegExp = ui->checkBoxRegExp->isChecked();
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
-    oldFindString = ui->lineEdit->text();
+    oldSearchString = ui->lineEdit->text();
     if (locate)
     {
         locate->terminate();
@@ -119,6 +126,8 @@ void Dialog::onFind()
 
     lastPartialLine.clear();
     ui->labelStatus->setText(tr("Searching..."));
+    nextEllipsisCount = 1;
+    animateEllipsisTimer->start();
 
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
@@ -132,7 +141,6 @@ void Dialog::onFind()
     if (ui->checkBoxRegExp->isChecked())
         args << "--regexp";
     args << ui->lineEdit->text();
-
     locate->start("locate", args);
 }
 
@@ -151,6 +159,8 @@ void Dialog::toggleDialogVisible(QSystemTrayIcon::ActivationReason reason)
 
 void Dialog::closeEvent(QCloseEvent *event)
 {
+    if (locate->state() == QProcess::Running)
+        locate->terminate();
     if (!reallyQuit)
     {
         hide();
@@ -160,8 +170,6 @@ void Dialog::closeEvent(QCloseEvent *event)
 
 void Dialog::readLocateOutput()
 {
-    int lastCount = ui->listWidget->count();
-
     lastPartialLine += QString::fromUtf8(locate->readAllStandardOutput());
     QStringList list = lastPartialLine.split('\n');
     lastPartialLine = list.back();
@@ -183,15 +191,6 @@ void Dialog::readLocateOutput()
             item->setData(Qt::ToolTipRole, filename);
         }
         ui->listWidget->addItem(item);
-    }
-
-    int count = ui->listWidget->count();
-    if (count != lastCount)
-    {
-        if (count == 1)
-            ui->labelStatus->setText(tr("Searching (1 file found)..."));
-        else
-            ui->labelStatus->setText(QString(tr("Searching (%1 files found)...").arg(ui->listWidget->count())));
     }
 }
 
@@ -227,23 +226,37 @@ void Dialog::showContextMenu(QPoint p)
 
 void Dialog::locateFinished(int /*exitCode*/)
 {
+    animateEllipsisTimer->stop();
+    
     int count = ui->listWidget->count();
     if (count > 1)
     {
-        ui->labelStatus->setText(QString(tr("%1 files found.").arg(ui->listWidget->count())));
+        ui->labelStatus->setText(QString(tr("%1 files were found.").arg(ui->listWidget->count())));
     }
     else if (count == 1)
     {
-        ui->labelStatus->setText(tr("1 file found."));
+        ui->labelStatus->setText(tr("1 file was found."));
     }
     else
     {
         QPalette palette = originalLabelPalette;
         palette.setColor(ui->labelStatus->foregroundRole(), Qt::red);
         ui->labelStatus->setPalette(palette);
-        ui->labelStatus->setText(tr("Nothing found."));
+        ui->labelStatus->setText(tr("Nothing was found."));
     }
 
     locate->deleteLater();
     locate = NULL;
+}
+
+void Dialog::animateEllipsis()
+{
+    QString text;
+    switch(nextEllipsisCount)
+    {
+    case 1: text = "Searching.";   nextEllipsisCount = 2; break;
+    case 2: text = "Searching..";  nextEllipsisCount = 3; break;
+    case 3: text = "Searching..."; nextEllipsisCount = 1; break;
+    }
+    ui->labelStatus->setText(text);
 }

@@ -19,7 +19,7 @@
      <item>
       <widget class="QLineEdit" name="lineEdit">
        <property name="text">
-        <string>&lt;Filter&gt;</string>
+        <string>&lt;type here&gt;</string>
        </property>
       </widget>
      </item>

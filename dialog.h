@@ -6,6 +6,7 @@
 
 class QProcess;
 class QFileIconProvider;
+class QTimer;
 
 namespace Ui {
     class Dialog;
@@ -18,7 +19,7 @@ public:
     ~Dialog();
 
 private slots:
-    void onFind();
+    void startLocate();
     void toggleDialogVisible(QSystemTrayIcon::ActivationReason);
     void readLocateOutput();
     void quit();
@@ -27,6 +28,7 @@ private slots:
     void startUpdateDB();
     void showContextMenu(QPoint p);
     void locateFinished(int exitCode);
+    void animateEllipsis();
 
 private:
     void changeEvent(QEvent *e);
@@ -37,7 +39,7 @@ private:
     QProcess* locate;
     QString lastPartialLine;
     bool reallyQuit;
-    QString oldFindString;
+    QString oldSearchString;
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
@@ -45,6 +47,8 @@ private:
     QMenu* listWidgetContextMenu;
     QPalette originalLabelPalette;
     QFileIconProvider* iconProvider;
+    QTimer* animateEllipsisTimer;
+    int nextEllipsisCount;
 };
 
 #endif // DIALOG_H
