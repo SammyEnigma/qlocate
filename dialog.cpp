@@ -72,7 +72,7 @@ Dialog::Dialog(QWidget *parent) :
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
-    connect(ui->listWidget, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openFile()));
+    connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 }
 
 Dialog::~Dialog()
@@ -118,7 +118,7 @@ void Dialog::startLocate()
     
     ui->labelStatus->setPalette(originalLabelPalette);
 
-    if (ui->lineEdit->text().isEmpty())
+    if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
     {
         ui->labelStatus->setText(tr("Ready."));
         return;
