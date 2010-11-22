@@ -10,7 +10,7 @@
 #include <QMenu>
 #include <QFileIconProvider>
 #include <QDebug>
-// test
+
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog)
