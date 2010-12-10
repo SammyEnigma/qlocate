@@ -73,6 +73,10 @@ Dialog::Dialog(QWidget *parent) :
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
+
+    locate = new QProcess(this);
+    connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
+    connect(locate, SIGNAL(finished(int)), this, SLOT(locateFinished(int)));
 }
 
 Dialog::~Dialog()
@@ -109,7 +113,7 @@ void Dialog::startLocate()
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
     oldSearchString = ui->lineEdit->text();
-    if (locate)
+    if (locate->state() != QProcess::NotRunning)
     {
         locate->terminate();
         locate->waitForFinished();
@@ -128,10 +132,6 @@ void Dialog::startLocate()
     ui->labelStatus->setText(tr("Searching..."));
     nextEllipsisCount = 1;
     animateEllipsisTimer->start();
-
-    locate = new QProcess(this);
-    connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
-    connect(locate, SIGNAL(finished(int)), this, SLOT(locateFinished(int)));
 
     // the arguments to pass to locate
     QStringList args;
@@ -244,9 +244,6 @@ void Dialog::locateFinished(int /*exitCode*/)
         ui->labelStatus->setPalette(palette);
         ui->labelStatus->setText(tr("Nothing was found."));
     }
-
-    locate->deleteLater();
-    locate = NULL;
 }
 
 void Dialog::animateEllipsis()
