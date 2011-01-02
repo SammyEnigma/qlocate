@@ -76,7 +76,12 @@ Dialog::Dialog(QWidget *parent) :
 
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
-    connect(locate, SIGNAL(finished(int)), this, SLOT(locateFinished(int)));
+    connect(locate, SIGNAL(finished(int)), this, SLOT(readLocateOutput()));
+
+    readLocateOutputTimer = new QTimer(this);
+    readLocateOutputTimer->setInterval(0);
+    readLocateOutputTimer->setSingleShot(true);
+    connect(readLocateOutputTimer, SIGNAL(timeout()), this, SLOT(readLocateOutput()));
 }
 
 Dialog::~Dialog()
@@ -121,6 +126,7 @@ void Dialog::startLocate()
     ui->listWidget->clear();
     
     ui->labelStatus->setPalette(originalLabelPalette);
+    readLocateOutputTimer->stop();
 
     if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
     {
@@ -128,7 +134,6 @@ void Dialog::startLocate()
         return;
     }
 
-    lastPartialLine.clear();
     ui->labelStatus->setText(tr("Searching..."));
     nextEllipsisCount = 1;
     animateEllipsisTimer->start();
@@ -170,15 +175,14 @@ void Dialog::closeEvent(QCloseEvent *event)
 
 void Dialog::readLocateOutput()
 {
-    lastPartialLine += QString::fromUtf8(locate->readAllStandardOutput());
-    QStringList list = lastPartialLine.split('\n');
-    lastPartialLine = list.back();
-    list.pop_back();
-    if (ui->checkBoxSearchOnlyHome->isChecked())
-        list = list.filter(QRegExp(QString("^%1/").arg(QRegExp::escape(QDir::homePath()))));
-
-    foreach (const QString& filename, list)
+    QVector<QListWidgetItem*> items;
+    while (locate->canReadLine() && !qApp->hasPendingEvents())
     {
+        QString filename = QString::fromUtf8(locate->readLine()).remove('\n');
+
+        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(QDir::homePath() + "/") != 0)
+            continue;
+
         QListWidgetItem* item = new QListWidgetItem;
         item->setIcon(iconProvider->icon(QFileInfo(filename)));
         if (ui->checkBoxShowFullPath->isChecked())
@@ -190,8 +194,17 @@ void Dialog::readLocateOutput()
             item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf('/')+1));
             item->setData(Qt::ToolTipRole, filename);
         }
-        ui->listWidget->addItem(item);
+
+        items.push_back(item);
     }
+
+    foreach(QListWidgetItem* item, items)
+        ui->listWidget->addItem(item);
+
+    if (locate->canReadLine())
+        readLocateOutputTimer->start();
+    else if (QProcess::NotRunning == locate->state())
+        locateFinished();
 }
 
 void Dialog::quit()
@@ -224,7 +237,7 @@ void Dialog::showContextMenu(QPoint p)
     listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
 }
 
-void Dialog::locateFinished(int /*exitCode*/)
+void Dialog::locateFinished()
 {
     animateEllipsisTimer->stop();
     

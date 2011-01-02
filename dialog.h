@@ -27,7 +27,7 @@ private slots:
     void openFolder();
     void startUpdateDB();
     void showContextMenu(QPoint p);
-    void locateFinished(int exitCode);
+    void locateFinished();
     void animateEllipsis();
 
 private:
@@ -37,7 +37,6 @@ private:
 private:
     Ui::Dialog *ui;
     QProcess* locate;
-    QString lastPartialLine;
     bool reallyQuit;
     QString oldSearchString;
     bool oldCaseSensitive;
@@ -49,6 +48,7 @@ private:
     QFileIconProvider* iconProvider;
     QTimer* animateEllipsisTimer;
     int nextEllipsisCount;
+    QTimer* readLocateOutputTimer;
 };
 
 #endif // DIALOG_H
