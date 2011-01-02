@@ -4,12 +4,10 @@
 #include <QSystemTrayIcon>
 #include <QCloseEvent>
 #include <QDir>
-#include <QMessageBox>
 #include <QListWidgetItem>
 #include <QTimer>
 #include <QMenu>
 #include <QFileIconProvider>
-#include <QDebug>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -175,6 +173,11 @@ void Dialog::closeEvent(QCloseEvent *event)
 
 void Dialog::readLocateOutput()
 {
+    // getting the icon for each file seems to be a lengthy operation
+    // taking much longer than adding the item to the list
+    // so getting the icons is made a separate cycle which can be interrupted
+    // if there are pending events like keyboard input and such
+    // that way the app is not unresponsive
     QVector<QListWidgetItem*> items;
     while (locate->canReadLine() && !qApp->hasPendingEvents())
     {
@@ -198,11 +201,18 @@ void Dialog::readLocateOutput()
         items.push_back(item);
     }
 
+    // now we add the collected filenames and icons to the list widget
+    // this doesn't seem to take much time
     foreach(QListWidgetItem* item, items)
         ui->listWidget->addItem(item);
 
+    // if there still are lines to be read then the first loop
+    // was interrupted, so we schedule a timer to return to
+    // this function after we have processed the pending events
     if (locate->canReadLine())
         readLocateOutputTimer->start();
+    // if there are no more lines to be read, the locate process
+    // might have ended
     else if (QProcess::NotRunning == locate->state())
         locateFinished();
 }
