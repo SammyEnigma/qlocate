@@ -33,6 +33,7 @@ private slots:
 private:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
+    QString currentFilename();
 
 private:
     Ui::Dialog *ui;
@@ -49,6 +50,7 @@ private:
     QTimer* animateEllipsisTimer;
     int nextEllipsisCount;
     QTimer* readLocateOutputTimer;
+    QString homePath;
 };
 
 #endif // DIALOG_H

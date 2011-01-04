@@ -19,6 +19,7 @@ Dialog::Dialog(QWidget *parent) :
     locate = NULL;
     originalLabelPalette = ui->labelStatus->palette();
     iconProvider = new QFileIconProvider;
+    homePath = QDir::toNativeSeparators(QDir::homePath()) + QDir::separator();
 
     // show the app is busy searching by making an animation of sorts,
     // this is done by showing ellipsis after "Searching "one at a time
@@ -181,9 +182,9 @@ void Dialog::readLocateOutput()
     QVector<QListWidgetItem*> items;
     while (locate->canReadLine() && !qApp->hasPendingEvents())
     {
-        QString filename = QString::fromUtf8(locate->readLine()).remove('\n');
+        QString filename = QString::fromUtf8(locate->readLine()).trimmed();
 
-        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(QDir::homePath() + "/") != 0)
+        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(homePath) != 0)
             continue;
 
         QListWidgetItem* item = new QListWidgetItem;
@@ -194,7 +195,7 @@ void Dialog::readLocateOutput()
         }
         else
         {
-            item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf('/')+1));
+            item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
             item->setData(Qt::ToolTipRole, filename);
         }
 
@@ -225,16 +226,18 @@ void Dialog::quit()
 
 void Dialog::openFile()
 {
-    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(role).toString()));
+        QProcess::startDetached("xdg-open", QStringList(currentFilename()));
 }
 
 void Dialog::openFolder()
 {
-    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("/usr/bin/xdg-open", QStringList(ui->listWidget->currentIndex().data(role).toString().remove(QRegExp("/[^/]+$"))));
+    {
+        QString folder = currentFilename();
+        folder.resize(folder.lastIndexOf(QDir::separator()) + 1);
+        QProcess::startDetached("xdg-open", QStringList(folder));
+    }
 }
 
 void Dialog::startUpdateDB()
@@ -279,4 +282,10 @@ void Dialog::animateEllipsis()
     case 3: text = "Searching..."; nextEllipsisCount = 1; break;
     }
     ui->labelStatus->setText(text);
+}
+
+QString Dialog::currentFilename()
+{
+    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
+    return ui->listWidget->currentIndex().data(role).toString();
 }
