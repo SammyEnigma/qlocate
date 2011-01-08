@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>493</width>
+    <width>594</width>
     <height>347</height>
    </rect>
   </property>
@@ -55,6 +55,13 @@
       <widget class="QCheckBox" name="checkBoxShowFullPath">
        <property name="text">
         <string>Show full path</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>UpdateDB</string>
        </property>
       </widget>
      </item>
