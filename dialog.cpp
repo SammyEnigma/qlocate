@@ -20,7 +20,6 @@ Dialog::Dialog(QWidget *parent) :
     originalLabelPalette = ui->labelStatus->palette();
     iconProvider = new QFileIconProvider;
     homePath = QDir::toNativeSeparators(QDir::homePath()) + QDir::separator();
-    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(startUpdateDB()));
 
     // show the app is busy searching by making an animation of sorts,
     // this is done by showing ellipsis after "Searching "one at a time
@@ -289,4 +288,9 @@ QString Dialog::currentFilename()
 {
     int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
     return ui->listWidget->currentIndex().data(role).toString();
+}
+
+void Dialog::reject()
+{
+    close();
 }

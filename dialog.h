@@ -29,6 +29,7 @@ private slots:
     void showContextMenu(QPoint p);
     void locateFinished();
     void animateEllipsis();
+    void reject();
 
 private:
     void changeEvent(QEvent *e);
