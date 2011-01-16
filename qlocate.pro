@@ -1,10 +1,26 @@
-# -------------------------------------------------
-# Project created by QtCreator 2010-10-20T08:28:07
-# -------------------------------------------------
+#-------------------------------------------------
+#
+# Project created by QtCreator 2011-01-11T23:03:41
+#
+#-------------------------------------------------
+
+QT       += core gui
+
 TARGET = qlocate
 TEMPLATE = app
-SOURCES += main.cpp \
-    dialog.cpp
-HEADERS += dialog.h
-FORMS += dialog.ui
-RESOURCES += res.qrc
+
+
+SOURCES += main.cpp\
+        mainwindow.cpp
+
+HEADERS  += mainwindow.h
+
+FORMS    += mainwindow.ui
+
+RESOURCES += \
+    res.qrc
+
+OTHER_FILES += \
+    folder-visiting.svg \
+    edit-find.svg \
+    document-open.svg

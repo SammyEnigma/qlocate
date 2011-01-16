@@ -1,11 +1,12 @@
 #include <QtGui/QApplication>
-#include "dialog.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/images/edit-find.svg"));
-    Dialog w;
+    MainWindow w;
 //    w.show();
+
     return a.exec();
 }
