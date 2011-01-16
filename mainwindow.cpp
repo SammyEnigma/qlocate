@@ -1,0 +1,311 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <QProcess>
+#include <QSystemTrayIcon>
+#include <QCloseEvent>
+#include <QDir>
+#include <QListWidgetItem>
+#include <QTimer>
+#include <QMenu>
+#include <QFileIconProvider>
+#include <QDesktopWidget>
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    // initialize misc. variables
+    ui->setupUi(this);
+
+    reallyQuit = false;
+    locate = NULL;
+    originalLabelPalette = ui->labelStatus->palette();
+    iconProvider = new QFileIconProvider;
+    homePath = QDir::toNativeSeparators(QDir::homePath()) + QDir::separator();
+
+    // show the app is busy searching by making an animation of sorts,
+    // this is done by showing ellipsis after "Searching "one at a time
+    // "Searching.", "Searching..", "Searching..."
+    animateEllipsisTimer = new QTimer(this);
+    connect(animateEllipsisTimer, SIGNAL(timeout()), this, SLOT(animateEllipsis()));
+    animateEllipsisTimer->setInterval(333);
+
+    // initialize the auto-search timer
+    // there is no search button in our app
+    // application starts searching automatically
+    // a fixed time interval after last key typed by user
+    QTimer* autoStartSearchTimer = new QTimer(this);
+    autoStartSearchTimer->setInterval(500);
+    autoStartSearchTimer->setSingleShot(true);
+    connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startLocate()));
+    connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
+
+    // initialize the tray icon
+    // the application resides in the tray and when
+    // user clicks on the tray icon the dialog is shown
+    // this is to speed things up (no process loading and
+    // initialization, so the app is more responsive)
+    QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleDialogVisible(QSystemTrayIcon::ActivationReason)));
+    trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
+    trayIcon->setVisible(true);
+    QMenu* trayIconContextMenu = new QMenu;
+    trayIconContextMenu->addAction(tr("Update Database"), this, SLOT(startUpdateDB()));
+    trayIconContextMenu->addAction(tr("Quit"), this, SLOT(quit()));
+    trayIcon->setContextMenu(trayIconContextMenu);
+
+    // connect the file menu signals
+    connect(ui->actionUpdate_Database, SIGNAL(triggered()), this, SLOT(startUpdateDB()));
+    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
+
+    // initialize list widget context menu
+    // the user can right click on a found file to pop up the context menu
+    // the context menu can be used to open the selected file (this is "Open File")
+    // or to open the folder in which the selected file is (this is "Open Folder")
+    ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    listWidgetContextMenu = new QMenu(this);
+    listWidgetContextMenu->addAction(QIcon(":/images/document-open.svg"), tr("Open File"), this, SLOT(openFile()));
+    listWidgetContextMenu->addAction(QIcon(":/images/folder-visiting.svg"), tr("Open Folder"), this, SLOT(openFolder()));
+
+    // initialize the checkboxes for various options
+    oldCaseSensitive = false;
+    oldUseRegExp = false;
+    oldSearchOnlyHome = true;
+    oldShowFullPath = false;
+    connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
+
+    locate = new QProcess(this);
+    connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
+    connect(locate, SIGNAL(finished(int)), this, SLOT(readLocateOutput()));
+
+    readLocateOutputTimer = new QTimer(this);
+    readLocateOutputTimer->setInterval(0);
+    readLocateOutputTimer->setSingleShot(true);
+    connect(readLocateOutputTimer, SIGNAL(timeout()), this, SLOT(readLocateOutput()));
+
+	// place the window at the center of the screen
+    QRect available_geom = QDesktopWidget().availableGeometry();
+    QRect current_geom = frameGeometry();
+    setGeometry(available_geom.width() / 2 - current_geom.width() / 2,
+                            available_geom.height() / 2 - current_geom.height() / 2,
+                            current_geom.width(),
+                            current_geom.height());
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete iconProvider;
+    delete ui;
+}
+
+void MainWindow::changeEvent(QEvent *e)
+{
+    QMainWindow::changeEvent(e);
+    switch (e->type()) {
+    case QEvent::LanguageChange:
+        ui->retranslateUi(this);
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::startLocate()
+{
+    if (oldSearchString == ui->lineEdit->text() &&
+        oldShowFullPath == ui->checkBoxShowFullPath->isChecked() &&
+        oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
+        oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
+        oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked())
+    {
+        return;
+    }
+
+    oldShowFullPath = ui->checkBoxShowFullPath->isChecked();
+    oldUseRegExp = ui->checkBoxRegExp->isChecked();
+    oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
+    oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
+    oldSearchString = ui->lineEdit->text();
+    if (locate->state() != QProcess::NotRunning)
+    {
+        locate->terminate();
+        locate->waitForFinished();
+    }
+    ui->listWidget->clear();
+
+    ui->labelStatus->setPalette(originalLabelPalette);
+    readLocateOutputTimer->stop();
+
+    if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
+    {
+        ui->labelStatus->setText(tr("Ready."));
+        return;
+    }
+
+    ui->labelStatus->setText(tr("Searching..."));
+    nextEllipsisCount = 1;
+    animateEllipsisTimer->start();
+
+    // the arguments to pass to locate
+    QStringList args;
+    args << "--existing" << "--basename";
+    if (!ui->checkBoxCaseSensitive->isChecked())
+        args << "--ignore-case";
+    if (ui->checkBoxRegExp->isChecked())
+        args << "--regexp";
+    args << ui->lineEdit->text();
+    locate->start("locate", args);
+}
+
+void MainWindow::toggleDialogVisible(QSystemTrayIcon::ActivationReason reason)
+{
+    if (QSystemTrayIcon::Trigger == reason)
+    {
+        if (!isVisible())
+        {
+            ui->lineEdit->selectAll();
+            ui->lineEdit->setFocus();
+        }
+        setVisible(!isVisible());
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (locate)
+        locate->terminate();
+    if (!reallyQuit)
+    {
+        hide();
+        event->ignore();
+    }
+}
+
+void MainWindow::readLocateOutput()
+{
+    // getting the icon for each file seems to be a lengthy operation
+    // taking much longer than adding the item to the list
+    // so getting the icons is made a separate cycle which can be interrupted
+    // if there are pending events like keyboard input and such
+    // that way the app is not unresponsive
+    QVector<QListWidgetItem*> items;
+    while (locate->canReadLine() && !qApp->hasPendingEvents())
+    {
+        QString filename = QString::fromUtf8(locate->readLine()).trimmed();
+
+        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(homePath) != 0)
+            continue;
+
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setIcon(iconProvider->icon(QFileInfo(filename)));
+        if (ui->checkBoxShowFullPath->isChecked())
+        {
+            item->setData(Qt::DisplayRole, filename);
+        }
+        else
+        {
+            item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
+            item->setData(Qt::ToolTipRole, filename);
+        }
+
+        items.push_back(item);
+    }
+
+    // now we add the collected filenames and icons to the list widget
+    // this doesn't seem to take much time
+    foreach(QListWidgetItem* item, items)
+        ui->listWidget->addItem(item);
+
+    // if there still are lines to be read then the first loop
+    // was interrupted, so we schedule a timer to return to
+    // this function after we have processed the pending events
+    if (locate->canReadLine())
+        readLocateOutputTimer->start();
+    // if there are no more lines to be read, the locate process
+    // might have ended
+    else if (QProcess::NotRunning == locate->state())
+        locateFinished();
+}
+
+void MainWindow::quit()
+{
+    reallyQuit = true;
+    close();
+}
+
+void MainWindow::openFile()
+{
+    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
+        QProcess::startDetached("xdg-open", QStringList(currentFilename()));
+}
+
+void MainWindow::openFolder()
+{
+    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
+    {
+        QString folder = currentFilename();
+        folder.resize(folder.lastIndexOf(QDir::separator()) + 1);
+        QProcess::startDetached("xdg-open", QStringList(folder));
+    }
+}
+
+void MainWindow::startUpdateDB()
+{
+    QProcess::startDetached("gksudo", QStringList("updatedb"));
+}
+
+void MainWindow::showContextMenu(QPoint p)
+{
+    listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
+}
+
+void MainWindow::locateFinished()
+{
+    animateEllipsisTimer->stop();
+
+    int count = ui->listWidget->count();
+    if (count > 1)
+    {
+        ui->labelStatus->setText(QString(tr("%1 files were found.").arg(ui->listWidget->count())));
+    }
+    else if (count == 1)
+    {
+        ui->labelStatus->setText(tr("1 file was found."));
+    }
+    else
+    {
+        QPalette palette = originalLabelPalette;
+        palette.setColor(ui->labelStatus->foregroundRole(), Qt::red);
+        ui->labelStatus->setPalette(palette);
+        ui->labelStatus->setText(tr("Nothing was found."));
+    }
+}
+
+void MainWindow::animateEllipsis()
+{
+    QString text;
+    switch(nextEllipsisCount)
+    {
+    case 1: text = "Searching.";   nextEllipsisCount = 2; break;
+    case 2: text = "Searching..";  nextEllipsisCount = 3; break;
+    case 3: text = "Searching..."; nextEllipsisCount = 1; break;
+    }
+    ui->labelStatus->setText(text);
+}
+
+QString MainWindow::currentFilename()
+{
+    int role = ui->checkBoxShowFullPath->isChecked() ? Qt::DisplayRole : Qt::ToolTipRole;
+    return ui->listWidget->currentIndex().data(role).toString();
+}
+
+void MainWindow::reject()
+{
+    close();
+}
