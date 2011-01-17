@@ -11,7 +11,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    shellexec.cpp
 
 HEADERS  += mainwindow.h \
     mainwindow.h

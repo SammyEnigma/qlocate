@@ -21,21 +21,23 @@ public:
 
 private slots:
     void startLocate();
-    void toggleDialogVisible(QSystemTrayIcon::ActivationReason);
+    void toggleVisible(QSystemTrayIcon::ActivationReason);
     void readLocateOutput();
     void quit();
     void openFile();
-    void openFolder();
+    void showFile();
     void startUpdateDB();
     void showContextMenu(QPoint p);
     void locateFinished();
     void animateEllipsis();
-    void reject();
 
 private:
+    bool event(QEvent *event);
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
     QString currentFilename();
+    void openFile(QString filename);
+    void showFile(QString filename);
 
 private:
     Ui::MainWindow *ui;

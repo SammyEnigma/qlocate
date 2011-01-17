@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // this is to speed things up (no process loading and
     // initialization, so the app is more responsive)
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleDialogVisible(QSystemTrayIcon::ActivationReason)));
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisible(QSystemTrayIcon::ActivationReason)));
     trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
     trayIcon->setVisible(true);
     QMenu* trayIconContextMenu = new QMenu;
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     listWidgetContextMenu = new QMenu(this);
     listWidgetContextMenu->addAction(QIcon(":/images/document-open.svg"), tr("Open File"), this, SLOT(openFile()));
-    listWidgetContextMenu->addAction(QIcon(":/images/folder-visiting.svg"), tr("Open Folder"), this, SLOT(openFolder()));
+    listWidgetContextMenu->addAction(QIcon(":/images/folder-visiting.svg"), tr("Open Folder"), this, SLOT(showFile()));
 
     // initialize the checkboxes for various options
     oldCaseSensitive = false;
@@ -154,26 +154,31 @@ void MainWindow::startLocate()
 
     // the arguments to pass to locate
     QStringList args;
+#ifdef Q_OS_WIN32
+    args << "-lfd";
+    if (ui->checkBoxRegExp->isChecked())
+    {
+        if (ui->checkBoxCaseSensitive->isChecked())
+            args << "-rc";
+        else
+            args << "-r";
+    }
+    args << "--";
+#else
     args << "--existing" << "--basename";
     if (!ui->checkBoxCaseSensitive->isChecked())
         args << "--ignore-case";
     if (ui->checkBoxRegExp->isChecked())
         args << "--regexp";
+#endif
     args << ui->lineEdit->text();
     locate->start("locate", args);
 }
 
-void MainWindow::toggleDialogVisible(QSystemTrayIcon::ActivationReason reason)
+void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
-    {
-        if (!isVisible())
-        {
-            ui->lineEdit->selectAll();
-            ui->lineEdit->setFocus();
-        }
         setVisible(!isVisible());
-    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -242,22 +247,22 @@ void MainWindow::quit()
 void MainWindow::openFile()
 {
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        QProcess::startDetached("xdg-open", QStringList(currentFilename()));
+        openFile(currentFilename());
 }
 
-void MainWindow::openFolder()
+void MainWindow::showFile()
 {
     if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-    {
-        QString folder = currentFilename();
-        folder.resize(folder.lastIndexOf(QDir::separator()) + 1);
-        QProcess::startDetached("xdg-open", QStringList(folder));
-    }
+        showFile(currentFilename());
 }
 
 void MainWindow::startUpdateDB()
 {
-    QProcess::startDetached("gksudo", QStringList("updatedb"));
+#ifdef Q_OS_WIN32
+    openFile("updatedb");
+#else
+    QProcess::startDetached("gksudo updatedb");
+#endif
 }
 
 void MainWindow::showContextMenu(QPoint p)
@@ -305,7 +310,17 @@ QString MainWindow::currentFilename()
     return ui->listWidget->currentIndex().data(role).toString();
 }
 
-void MainWindow::reject()
+bool MainWindow::event(QEvent *e)
 {
-    close();
+    bool res = QMainWindow::event(e);
+    switch (e->type()) {
+    case QEvent::WindowActivate:
+        ui->lineEdit->selectAll();
+        ui->lineEdit->setFocus();
+        break;
+    default:
+        break;
+    }
+
+    return res;
 }
