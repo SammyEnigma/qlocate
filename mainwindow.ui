@@ -50,7 +50,7 @@
     <addaction name="actionUpdate_Database"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuOptions">
     <property name="title">
      <string>&amp;Options</string>
     </property>
@@ -58,9 +58,11 @@
     <addaction name="checkBoxRegExp"/>
     <addaction name="checkBoxSearchOnlyHome"/>
     <addaction name="checkBoxShowFullPath"/>
+    <addaction name="separator"/>
+    <addaction name="checkBoxSaveWindowPosition"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
+   <addaction name="menuOptions"/>
   </widget>
   <action name="actionUpdate_Database">
    <property name="text">
@@ -105,6 +107,17 @@
    </property>
    <property name="text">
     <string>Show Full Paths</string>
+   </property>
+  </action>
+  <action name="checkBoxSaveWindowPosition">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save Window Position</string>
    </property>
   </action>
  </widget>

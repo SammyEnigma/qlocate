@@ -38,6 +38,8 @@ private:
     QString currentFilename();
     void openFile(QString filename);
     void showFile(QString filename);
+    void restoreSettings();
+    void saveSettings();
 
 private:
     Ui::MainWindow *ui;

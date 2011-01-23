@@ -6,9 +6,9 @@
 #include <QDir>
 #include <QListWidgetItem>
 #include <QTimer>
-#include <QMenu>
 #include <QFileIconProvider>
 #include <QDesktopWidget>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,10 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisible(QSystemTrayIcon::ActivationReason)));
     trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
     trayIcon->setVisible(true);
-    QMenu* trayIconContextMenu = new QMenu;
-    trayIconContextMenu->addAction(tr("Update Database"), this, SLOT(startUpdateDB()));
-    trayIconContextMenu->addAction(tr("Quit"), this, SLOT(quit()));
-    trayIcon->setContextMenu(trayIconContextMenu);
+    trayIcon->setContextMenu(ui->menuFile);
 
     // connect the file menu signals
     connect(ui->actionUpdate_Database, SIGNAL(triggered()), this, SLOT(startUpdateDB()));
@@ -96,10 +93,12 @@ MainWindow::MainWindow(QWidget *parent) :
                             current_geom.width(),
                             current_geom.height());
 
+    restoreSettings();
 }
 
 MainWindow::~MainWindow()
 {
+    saveSettings();
     delete iconProvider;
     delete ui;
 }
@@ -323,4 +322,27 @@ bool MainWindow::event(QEvent *e)
     }
 
     return res;
+}
+
+void MainWindow::restoreSettings()
+{
+    QSettings settings;
+    ui->checkBoxCaseSensitive->setChecked(settings.value("Options/CaseSensitive", ui->checkBoxCaseSensitive->isChecked()).toBool());
+    ui->checkBoxRegExp->setChecked(settings.value("Options/RegExp", ui->checkBoxRegExp->isChecked()).toBool());
+    ui->checkBoxSearchOnlyHome->setChecked(settings.value("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked()).toBool());
+    ui->checkBoxShowFullPath->setChecked(settings.value("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked()).toBool());
+    ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
+    if (ui->checkBoxSaveWindowPosition->isChecked())
+        restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+    settings.setValue("Options/CaseSensitive", ui->checkBoxCaseSensitive->isChecked());
+    settings.setValue("Options/RegExp", ui->checkBoxRegExp->isChecked());
+    settings.setValue("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
+    settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
+    settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
+    settings.setValue("Window/Geometry", saveGeometry());
 }
