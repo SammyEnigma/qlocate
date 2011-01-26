@@ -177,7 +177,18 @@ void MainWindow::startLocate()
 void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
-        setVisible(!isVisible());
+    {
+        if (isVisible())
+        {
+            hide();
+        }
+        else
+        {
+            show();
+            raise();
+            activateWindow();
+        }
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
