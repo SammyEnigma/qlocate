@@ -30,6 +30,7 @@ private slots:
     void showContextMenu(QPoint p);
     void locateFinished();
     void animateEllipsis();
+    void toggleFullPaths();
 
 private:
     bool event(QEvent *event);
@@ -49,7 +50,6 @@ private:
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
-    bool oldShowFullPath;
     QMenu* listWidgetContextMenu;
     QPalette originalLabelPalette;
     QFileIconProvider* iconProvider;

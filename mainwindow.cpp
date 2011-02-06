@@ -69,11 +69,10 @@ MainWindow::MainWindow(QWidget *parent) :
     oldCaseSensitive = false;
     oldUseRegExp = false;
     oldSearchOnlyHome = true;
-    oldShowFullPath = false;
     connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
-    connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(toggleFullPaths()));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
     locate = new QProcess(this);
@@ -85,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     readLocateOutputTimer->setSingleShot(true);
     connect(readLocateOutputTimer, SIGNAL(timeout()), this, SLOT(readLocateOutput()));
 
-	// place the window at the center of the screen
+    // place the window at the center of the screen
     QRect available_geom = QDesktopWidget().availableGeometry();
     QRect current_geom = frameGeometry();
     setGeometry(available_geom.width() / 2 - current_geom.width() / 2,
@@ -118,7 +117,6 @@ void MainWindow::changeEvent(QEvent *e)
 void MainWindow::startLocate()
 {
     if (oldSearchString == ui->lineEdit->text() &&
-        oldShowFullPath == ui->checkBoxShowFullPath->isChecked() &&
         oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
         oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
         oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked())
@@ -126,7 +124,6 @@ void MainWindow::startLocate()
         return;
     }
 
-    oldShowFullPath = ui->checkBoxShowFullPath->isChecked();
     oldUseRegExp = ui->checkBoxRegExp->isChecked();
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
@@ -220,14 +217,10 @@ void MainWindow::readLocateOutput()
         QListWidgetItem* item = new QListWidgetItem;
         item->setIcon(iconProvider->icon(QFileInfo(filename)));
         if (ui->checkBoxShowFullPath->isChecked())
-        {
             item->setData(Qt::DisplayRole, filename);
-        }
         else
-        {
             item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
-            item->setData(Qt::ToolTipRole, filename);
-        }
+        item->setData(Qt::ToolTipRole, filename);
 
         items.push_back(item);
     }
@@ -282,8 +275,6 @@ void MainWindow::showContextMenu(QPoint p)
 
 void MainWindow::locateFinished()
 {
-    animateEllipsisTimer->stop();
-
     int count = ui->listWidget->count();
     if (count > 1)
     {
@@ -304,6 +295,12 @@ void MainWindow::locateFinished()
 
 void MainWindow::animateEllipsis()
 {
+    if (locate->state() == QProcess::NotRunning)
+    {
+        animateEllipsisTimer->stop();
+        return;
+    }
+
     QString text;
     switch(nextEllipsisCount)
     {
@@ -356,4 +353,17 @@ void MainWindow::saveSettings()
     settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
     settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
     settings.setValue("Window/Geometry", saveGeometry());
+}
+
+void MainWindow::toggleFullPaths()
+{
+    for (int ii=0; ii<ui->listWidget->count(); ii++)
+    {
+        QListWidgetItem* item = ui->listWidget->item(ii);
+        QString filename = item->data(Qt::ToolTipRole).toString();
+        if (ui->checkBoxShowFullPath->isChecked())
+            item->setData(Qt::DisplayRole, filename);
+        else
+            item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
+    }
 }
