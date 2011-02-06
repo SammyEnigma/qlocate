@@ -73,12 +73,21 @@
   </widget>
   <action name="actionUpdate_Database">
    <property name="text">
-    <string>Update Database</string>
+    <string>&amp;Update Database</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
   <action name="actionQuit">
    <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip">
     <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="checkBoxCaseSensitive">
@@ -86,7 +95,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Case Sensitive</string>
+    <string>Case &amp;Sensitive</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="checkBoxRegExp">
@@ -94,7 +106,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Use Regular Expressions</string>
+    <string>Use &amp;Regular Expressions</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="checkBoxSearchOnlyHome">
@@ -105,7 +120,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Search Only Home</string>
+    <string>Search Only &amp;Home</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
    </property>
   </action>
   <action name="checkBoxShowFullPath">
@@ -113,7 +131,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Full Paths</string>
+    <string>Show &amp;Full Paths</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="checkBoxSaveWindowPosition">
