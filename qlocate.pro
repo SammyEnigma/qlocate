@@ -12,10 +12,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    shellexec.cpp
+    shellexec.cpp \
+    dragawarelistwidget.cpp
 
 HEADERS  += mainwindow.h \
-    mainwindow.h
+    mainwindow.h \
+    dragawarelistwidget.h
 
 FORMS    += mainwindow.ui
 

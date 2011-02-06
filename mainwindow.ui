@@ -23,7 +23,14 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidget"/>
+     <widget class="DragAwareListWidget" name="listWidget">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::DragOnly</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="labelStatus">
@@ -122,6 +129,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>DragAwareListWidget</class>
+   <extends>QListWidget</extends>
+   <header>dragawarelistwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
