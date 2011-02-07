@@ -65,6 +65,7 @@
     <addaction name="checkBoxRegExp"/>
     <addaction name="checkBoxSearchOnlyHome"/>
     <addaction name="checkBoxShowFullPath"/>
+    <addaction name="checkBoxSpaceIsWildcard"/>
     <addaction name="separator"/>
     <addaction name="checkBoxSaveWindowPosition"/>
    </widget>
@@ -93,6 +94,9 @@
   <action name="checkBoxCaseSensitive">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Case &amp;Sensitive</string>
@@ -146,6 +150,20 @@
    </property>
    <property name="text">
     <string>Save Window Position</string>
+   </property>
+  </action>
+  <action name="checkBoxSpaceIsWildcard">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Treat space as wildcard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

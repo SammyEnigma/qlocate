@@ -50,6 +50,7 @@ private:
     bool oldCaseSensitive;
     bool oldUseRegExp;
     bool oldSearchOnlyHome;
+    bool oldSpaceIsWildcard;
     QMenu* listWidgetContextMenu;
     QPalette originalLabelPalette;
     QFileIconProvider* iconProvider;

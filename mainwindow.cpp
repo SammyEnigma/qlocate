@@ -69,10 +69,12 @@ MainWindow::MainWindow(QWidget *parent) :
     oldCaseSensitive = false;
     oldUseRegExp = false;
     oldSearchOnlyHome = true;
+    oldSpaceIsWildcard = false;
     connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(toggleFullPaths()));
+    connect(ui->checkBoxSpaceIsWildcard, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
     locate = new QProcess(this);
@@ -118,8 +120,9 @@ void MainWindow::startLocate()
 {
     if (oldSearchString == ui->lineEdit->text() &&
         oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
-        oldCaseSensitive  == ui->checkBoxCaseSensitive->isChecked() &&
-        oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked())
+        oldCaseSensitive == ui->checkBoxCaseSensitive->isChecked() &&
+        oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked() &&
+        oldSpaceIsWildcard == ui->checkBoxSpaceIsWildcard->isChecked())
     {
         return;
     }
@@ -127,6 +130,7 @@ void MainWindow::startLocate()
     oldUseRegExp = ui->checkBoxRegExp->isChecked();
     oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
     oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
+    oldSpaceIsWildcard = ui->checkBoxSpaceIsWildcard->isChecked();
     oldSearchString = ui->lineEdit->text();
     if (locate->state() != QProcess::NotRunning)
     {
@@ -148,6 +152,15 @@ void MainWindow::startLocate()
     nextEllipsisCount = 1;
     animateEllipsisTimer->start();
 
+    QString query = ui->lineEdit->text();
+    if (ui->checkBoxSpaceIsWildcard->isChecked() && -1 != query.indexOf(' '))
+    {
+        if (ui->checkBoxRegExp->isChecked())
+            query = ".*" + query.replace(" ", ".*") + ".*";
+        else
+            query = "*" + query.replace(" ", "*") + "*";
+    }
+
     // the arguments to pass to locate
     QStringList args;
 #ifdef Q_OS_WIN32
@@ -167,7 +180,7 @@ void MainWindow::startLocate()
     if (ui->checkBoxRegExp->isChecked())
         args << "--regexp";
 #endif
-    args << ui->lineEdit->text();
+    args << query;
     locate->start("locate", args);
 }
 
@@ -339,6 +352,7 @@ void MainWindow::restoreSettings()
     ui->checkBoxRegExp->setChecked(settings.value("Options/RegExp", ui->checkBoxRegExp->isChecked()).toBool());
     ui->checkBoxSearchOnlyHome->setChecked(settings.value("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked()).toBool());
     ui->checkBoxShowFullPath->setChecked(settings.value("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked()).toBool());
+    ui->checkBoxSpaceIsWildcard->setChecked(settings.value("Options/SpaceIsWildcard", ui->checkBoxSpaceIsWildcard->isChecked()).toBool());
     ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
     if (ui->checkBoxSaveWindowPosition->isChecked())
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
@@ -351,6 +365,7 @@ void MainWindow::saveSettings()
     settings.setValue("Options/RegExp", ui->checkBoxRegExp->isChecked());
     settings.setValue("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
     settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
+    settings.setValue("Options/SpaceIsWildcard", ui->checkBoxSpaceIsWildcard->isChecked());
     settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
     settings.setValue("Window/Geometry", saveGeometry());
 }
