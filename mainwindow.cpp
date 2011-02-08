@@ -153,12 +153,11 @@ void MainWindow::startLocate()
     animateEllipsisTimer->start();
 
     QString query = ui->lineEdit->text();
-    if (ui->checkBoxSpaceIsWildcard->isChecked() && -1 != query.indexOf(' '))
+    if (ui->checkBoxSpaceIsWildcard->isChecked() && !ui->checkBoxRegExp->isChecked())
     {
-        if (ui->checkBoxRegExp->isChecked())
-            query = ".*" + query.replace(" ", ".*") + ".*";
-        else
-            query = "*" + query.replace(" ", "*") + "*";
+        query.replace(' ', '*');
+        if (query[0] != '*' && query[query.size()-1] != '*')
+            query = '*' + query + '*';
     }
 
     // the arguments to pass to locate
