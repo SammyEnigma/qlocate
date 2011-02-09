@@ -11,7 +11,7 @@ QMimeData * DragAwareListWidget::mimeData(const QList<QListWidgetItem *> items) 
 {
     QList<QUrl> urls;
     foreach (QListWidgetItem *ii, items)
-        urls.push_back(ii->data(Qt::ToolTipRole).toString());
+        urls.push_back(QUrl::fromLocalFile(ii->data(Qt::ToolTipRole).toString()));
 
     QMimeData* data = new QMimeData;
     data->setUrls(urls);
