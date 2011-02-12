@@ -16,7 +16,6 @@ SOURCES += main.cpp\
     dragawarelistwidget.cpp
 
 HEADERS  += mainwindow.h \
-    mainwindow.h \
     dragawarelistwidget.h
 
 FORMS    += mainwindow.ui
