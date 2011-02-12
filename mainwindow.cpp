@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     originalLabelPalette = ui->labelStatus->palette();
     iconProvider = new QFileIconProvider;
     homePath = QDir::toNativeSeparators(QDir::homePath()) + QDir::separator();
+    isSearching = false;
 
     // show the app is busy searching by making an animation of sorts,
     // this is done by showing ellipsis after "Searching "one at a time
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer* autoStartSearchTimer = new QTimer(this);
     autoStartSearchTimer->setInterval(500);
     autoStartSearchTimer->setSingleShot(true);
-    connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startLocate()));
+    connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startSearching()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
 
     // initialize the tray icon
@@ -60,22 +61,18 @@ MainWindow::MainWindow(QWidget *parent) :
     // the context menu can be used to open the selected file (this is "Open File")
     // or to open the folder in which the selected file is (this is "Open Folder")
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     listWidgetContextMenu = new QMenu(this);
     listWidgetContextMenu->addAction(QIcon(":/images/document-open.svg"), tr("Open File"), this, SLOT(openFile()));
     listWidgetContextMenu->addAction(QIcon(":/images/folder-visiting.svg"), tr("Open Folder"), this, SLOT(showFile()));
+    connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
     // initialize the checkboxes for various options
-    oldCaseSensitive = false;
-    oldUseRegExp = false;
-    oldSearchOnlyHome = true;
-    oldSpaceIsWildcard = false;
-    connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
-    connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
-    connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
+    connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
+    connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
+    connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(toggleFullPaths()));
-    connect(ui->checkBoxSpaceIsWildcard, SIGNAL(toggled(bool)), this, SLOT(startLocate()));
-    connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
+    connect(ui->checkBoxSmartWildcard, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
 
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
@@ -116,44 +113,58 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::startLocate()
+void MainWindow::setLabelText(const QString& text)
 {
-    if (oldSearchString == ui->lineEdit->text() &&
-        oldUseRegExp == ui->checkBoxRegExp->isChecked() &&
-        oldCaseSensitive == ui->checkBoxCaseSensitive->isChecked() &&
-        oldSearchOnlyHome == ui->checkBoxSearchOnlyHome->isChecked() &&
-        oldSpaceIsWildcard == ui->checkBoxSpaceIsWildcard->isChecked())
+    if (isLabelTextRed)
     {
-        return;
+        ui->labelStatus->setPalette(originalLabelPalette);
+        isLabelTextRed = false;
     }
+    ui->labelStatus->setText(text);
+}
 
-    oldUseRegExp = ui->checkBoxRegExp->isChecked();
-    oldCaseSensitive  = ui->checkBoxCaseSensitive->isChecked();
-    oldSearchOnlyHome = ui->checkBoxSearchOnlyHome->isChecked();
-    oldSpaceIsWildcard = ui->checkBoxSpaceIsWildcard->isChecked();
-    oldSearchString = ui->lineEdit->text();
-    if (locate->state() != QProcess::NotRunning)
+void MainWindow::setRedLabelText(const QString& text)
+{
+    if (!isLabelTextRed)
     {
-        locate->terminate();
-        locate->waitForFinished();
+        QPalette palette = originalLabelPalette;
+        palette.setColor(ui->labelStatus->foregroundRole(), Qt::red);
+        ui->labelStatus->setPalette(palette);
+        isLabelTextRed = true;
     }
+    ui->labelStatus->setText(text);
+}
+
+void MainWindow::startSearching()
+{
+    // if the query (and checkboxes) are the same,
+    // no need to restart the same query
+    QVariantList state;
+    state
+            << ui->checkBoxCaseSensitive->isChecked()
+            << ui->checkBoxRegExp->isChecked()
+            << ui->checkBoxSearchOnlyHome->isChecked()
+            << ui->checkBoxSmartWildcard->isChecked()
+            << ui->lineEdit->text();
+    if (state == lastState)
+        return;
+    lastState = state;
+
+    // if a previous search is running stop it
+    stopSearching();
+
+    // empty the list from filenames from previous searches
     ui->listWidget->clear();
 
-    ui->labelStatus->setPalette(originalLabelPalette);
-    readLocateOutputTimer->stop();
-
+    // if there is no query just clear the list and stop any previous searches
     if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
     {
-        ui->labelStatus->setText(tr("Ready."));
+        setLabelText(tr("Ready."));
         return;
     }
 
-    ui->labelStatus->setText(tr("Searching..."));
-    nextEllipsisCount = 1;
-    animateEllipsisTimer->start();
-
     QString query = ui->lineEdit->text();
-    if (ui->checkBoxSpaceIsWildcard->isChecked() && !ui->checkBoxRegExp->isChecked())
+    if (ui->checkBoxSmartWildcard->isChecked() && !ui->checkBoxRegExp->isChecked())
     {
         query.replace(' ', '*');
         if (query[0] != '*' && query[query.size()-1] != '*')
@@ -181,6 +192,25 @@ void MainWindow::startLocate()
 #endif
     args << query;
     locate->start("locate", args);
+
+    setLabelText(tr("Searching..."));
+    nextEllipsisCount = 1;
+    animateEllipsisTimer->start();
+    isSearching = true;
+}
+
+void MainWindow::stopSearching()
+{
+    if (!isSearching)
+        return;
+    if (locate->state() != QProcess::NotRunning)
+    {
+        locate->terminate();
+        locate->waitForFinished();
+    }
+    animateEllipsisTimer->stop();
+    readLocateOutputTimer->stop();
+    isSearching = false;
 }
 
 void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
@@ -202,8 +232,9 @@ void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (locate)
-        locate->terminate();
+    // if there is a search going on stop it
+    stopSearching();
+
     if (!reallyQuit)
     {
         hide();
@@ -250,7 +281,16 @@ void MainWindow::readLocateOutput()
     // if there are no more lines to be read, the locate process
     // might have ended
     else if (QProcess::NotRunning == locate->state())
-        locateFinished();
+    {
+        stopSearching();
+
+        switch (ui->listWidget->count())
+        {
+        case 0: setRedLabelText(tr("Nothing was found.")); break;
+        case 1: setLabelText(tr("1 file was found.")); break;
+        default: setLabelText(tr("%1 files were found.").arg(ui->listWidget->count())); break;
+        }
+    }
 }
 
 void MainWindow::quit()
@@ -285,42 +325,16 @@ void MainWindow::showContextMenu(QPoint p)
     listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
 }
 
-void MainWindow::locateFinished()
-{
-    int count = ui->listWidget->count();
-    if (count > 1)
-    {
-        ui->labelStatus->setText(QString(tr("%1 files were found.").arg(ui->listWidget->count())));
-    }
-    else if (count == 1)
-    {
-        ui->labelStatus->setText(tr("1 file was found."));
-    }
-    else
-    {
-        QPalette palette = originalLabelPalette;
-        palette.setColor(ui->labelStatus->foregroundRole(), Qt::red);
-        ui->labelStatus->setPalette(palette);
-        ui->labelStatus->setText(tr("Nothing was found."));
-    }
-}
-
 void MainWindow::animateEllipsis()
 {
-    if (locate->state() == QProcess::NotRunning)
-    {
-        animateEllipsisTimer->stop();
-        return;
-    }
-
     QString text;
     switch(nextEllipsisCount)
     {
-    case 1: text = "Searching.";   nextEllipsisCount = 2; break;
-    case 2: text = "Searching..";  nextEllipsisCount = 3; break;
-    case 3: text = "Searching..."; nextEllipsisCount = 1; break;
+    case 1: text = tr("Searching.");   nextEllipsisCount = 2; break;
+    case 2: text = tr("Searching..");  nextEllipsisCount = 3; break;
+    case 3: text = tr("Searching..."); nextEllipsisCount = 1; break;
     }
-    ui->labelStatus->setText(text);
+    setLabelText(text);
 }
 
 QString MainWindow::currentFilename()
@@ -351,7 +365,7 @@ void MainWindow::restoreSettings()
     ui->checkBoxRegExp->setChecked(settings.value("Options/RegExp", ui->checkBoxRegExp->isChecked()).toBool());
     ui->checkBoxSearchOnlyHome->setChecked(settings.value("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked()).toBool());
     ui->checkBoxShowFullPath->setChecked(settings.value("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked()).toBool());
-    ui->checkBoxSpaceIsWildcard->setChecked(settings.value("Options/SpaceIsWildcard", ui->checkBoxSpaceIsWildcard->isChecked()).toBool());
+    ui->checkBoxSmartWildcard->setChecked(settings.value("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked()).toBool());
     ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
     if (ui->checkBoxSaveWindowPosition->isChecked())
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
@@ -364,7 +378,7 @@ void MainWindow::saveSettings()
     settings.setValue("Options/RegExp", ui->checkBoxRegExp->isChecked());
     settings.setValue("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
     settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
-    settings.setValue("Options/SpaceIsWildcard", ui->checkBoxSpaceIsWildcard->isChecked());
+    settings.setValue("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked());
     settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
     settings.setValue("Window/Geometry", saveGeometry());
 }

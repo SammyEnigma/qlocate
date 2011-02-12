@@ -65,7 +65,7 @@
     <addaction name="checkBoxRegExp"/>
     <addaction name="checkBoxSearchOnlyHome"/>
     <addaction name="checkBoxShowFullPath"/>
-    <addaction name="checkBoxSpaceIsWildcard"/>
+    <addaction name="checkBoxSmartWildcard"/>
     <addaction name="separator"/>
     <addaction name="checkBoxSaveWindowPosition"/>
    </widget>
@@ -152,7 +152,7 @@
     <string>Save Window Position</string>
    </property>
   </action>
-  <action name="checkBoxSpaceIsWildcard">
+  <action name="checkBoxSmartWildcard">
    <property name="checkable">
     <bool>true</bool>
    </property>

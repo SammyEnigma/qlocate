@@ -3,6 +3,7 @@
 
 #include <QSystemTrayIcon>
 #include <QMainWindow>
+#include <QVariantList>
 
 namespace Ui {
     class MainWindow;
@@ -20,7 +21,8 @@ public:
     ~MainWindow();
 
 private slots:
-    void startLocate();
+    void startSearching();
+    void stopSearching();
     void toggleVisible(QSystemTrayIcon::ActivationReason);
     void readLocateOutput();
     void quit();
@@ -28,7 +30,6 @@ private slots:
     void showFile();
     void startUpdateDB();
     void showContextMenu(QPoint p);
-    void locateFinished();
     void animateEllipsis();
     void toggleFullPaths();
 
@@ -41,16 +42,14 @@ private:
     void showFile(QString filename);
     void restoreSettings();
     void saveSettings();
+    void setLabelText(const QString& text);
+    void setRedLabelText(const QString& text);
 
 private:
     Ui::MainWindow *ui;
     QProcess* locate;
     bool reallyQuit;
-    QString oldSearchString;
-    bool oldCaseSensitive;
-    bool oldUseRegExp;
-    bool oldSearchOnlyHome;
-    bool oldSpaceIsWildcard;
+    QVariantList lastState;
     QMenu* listWidgetContextMenu;
     QPalette originalLabelPalette;
     QFileIconProvider* iconProvider;
@@ -58,6 +57,8 @@ private:
     int nextEllipsisCount;
     QTimer* readLocateOutputTimer;
     QString homePath;
+    bool isSearching;
+    bool isLabelTextRed;
 };
 
 #endif // MAINWINDOW_H
