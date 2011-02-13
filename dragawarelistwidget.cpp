@@ -32,5 +32,6 @@ void DragAwareListWidget::keyPressEvent(QKeyEvent *event)
 
         QApplication::clipboard()->setText(strings.join("\n"));
     }
+
     QListWidget::keyPressEvent(event);
 }

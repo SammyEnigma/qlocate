@@ -239,8 +239,11 @@ void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // if there is a search going on stop it
-    stopSearching();
-    setLabelText("Stopped.");
+    if (isSearching)
+    {
+        stopSearching();
+        setLabelText("Stopped.");
+    }
 
     if (!reallyQuit)
     {
@@ -407,9 +410,11 @@ void MainWindow::toggleFullPaths()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape)
+    if (isSearching && event->key() == Qt::Key_Escape)
     {
         stopSearching();
         setLabelText("Stopped.");
     }
+
+    QMainWindow::keyPressEvent(event);
 }
