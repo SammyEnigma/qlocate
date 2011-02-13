@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // application starts searching automatically
     // a fixed time interval after last key typed by user
     QTimer* autoStartSearchTimer = new QTimer(this);
-    autoStartSearchTimer->setInterval(500);
+    autoStartSearchTimer->setInterval(333);
     autoStartSearchTimer->setSingleShot(true);
     connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startSearching()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
@@ -201,6 +201,7 @@ void MainWindow::startSearching()
     nextEllipsisCount = 1;
     animateEllipsisTimer->start();
     isSearching = true;
+    setCursor(Qt::BusyCursor);
 }
 
 void MainWindow::stopSearching()
@@ -215,6 +216,7 @@ void MainWindow::stopSearching()
     animateEllipsisTimer->stop();
     readLocateOutputTimer->stop();
     isSearching = false;
+    unsetCursor();
 }
 
 void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
