@@ -11,6 +11,7 @@ public:
 
 protected:
     virtual QMimeData * mimeData(const QList<QListWidgetItem*> items) const;
+    virtual void keyPressEvent(QKeyEvent *event);
 
 signals:
 
