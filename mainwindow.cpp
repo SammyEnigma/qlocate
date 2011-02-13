@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // application starts searching automatically
     // a fixed time interval after last key typed by user
     QTimer* autoStartSearchTimer = new QTimer(this);
-    autoStartSearchTimer->setInterval(333);
+    autoStartSearchTimer->setInterval(500);
     autoStartSearchTimer->setSingleShot(true);
     connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startSearching()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
