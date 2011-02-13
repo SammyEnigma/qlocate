@@ -225,7 +225,7 @@ void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
     {
         if (isVisible() && isActiveWindow())
         {
-            hide();
+            close();
         }
         else
         {
