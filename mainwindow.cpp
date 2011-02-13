@@ -240,6 +240,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // if there is a search going on stop it
     stopSearching();
+    setLabelText("Stopped.");
 
     if (!reallyQuit)
     {
@@ -401,5 +402,14 @@ void MainWindow::toggleFullPaths()
             item->setData(Qt::DisplayRole, filename);
         else
             item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape)
+    {
+        stopSearching();
+        setLabelText("Stopped.");
     }
 }

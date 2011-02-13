@@ -44,6 +44,7 @@ private:
     void saveSettings();
     void setLabelText(const QString& text);
     void setRedLabelText(const QString& text);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
