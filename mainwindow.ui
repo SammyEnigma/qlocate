@@ -66,6 +66,7 @@
     <addaction name="checkBoxSearchOnlyHome"/>
     <addaction name="checkBoxShowFullPath"/>
     <addaction name="checkBoxSmartWildcard"/>
+    <addaction name="checkBoxMatchWholePath"/>
     <addaction name="separator"/>
     <addaction name="checkBoxSaveWindowPosition"/>
    </widget>
@@ -162,8 +163,25 @@
    <property name="text">
     <string>Smart Wildcards</string>
    </property>
+   <property name="iconText">
+    <string>Smart &amp;Wildcards</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="checkBoxMatchWholePath">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Match Whole Path</string>
+   </property>
+   <property name="iconText">
+    <string>Match Whole &amp;Path</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

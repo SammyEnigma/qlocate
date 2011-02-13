@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxShowFullPath, SIGNAL(toggled(bool)), this, SLOT(toggleFullPaths()));
     connect(ui->checkBoxSmartWildcard, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
+    connect(ui->checkBoxMatchWholePath, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
 
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
@@ -144,6 +145,7 @@ void MainWindow::startSearching()
             << ui->checkBoxCaseSensitive->isChecked()
             << ui->checkBoxRegExp->isChecked()
             << ui->checkBoxSearchOnlyHome->isChecked()
+            << ui->checkBoxMatchWholePath->isChecked()
             << ui->checkBoxSmartWildcard->isChecked()
             << ui->lineEdit->text();
     if (state == lastState)
@@ -184,7 +186,9 @@ void MainWindow::startSearching()
     }
     args << "--";
 #else
-    args << "--existing" << "--basename";
+    args << "--existing";
+    if (!ui->checkBoxMatchWholePath->isChecked())
+        args << "--basename";
     if (!ui->checkBoxCaseSensitive->isChecked())
         args << "--ignore-case";
     if (ui->checkBoxRegExp->isChecked())
@@ -366,6 +370,7 @@ void MainWindow::restoreSettings()
     ui->checkBoxSearchOnlyHome->setChecked(settings.value("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked()).toBool());
     ui->checkBoxShowFullPath->setChecked(settings.value("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked()).toBool());
     ui->checkBoxSmartWildcard->setChecked(settings.value("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked()).toBool());
+    ui->checkBoxMatchWholePath->setChecked(settings.value("Options/MatchWholePath", ui->checkBoxMatchWholePath->isChecked()).toBool());
     ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
     if (ui->checkBoxSaveWindowPosition->isChecked())
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
@@ -379,6 +384,7 @@ void MainWindow::saveSettings()
     settings.setValue("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
     settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
     settings.setValue("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked());
+    settings.setValue("Options/MatchWholePath", ui->checkBoxMatchWholePath->isChecked());
     settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
     settings.setValue("Window/Geometry", saveGeometry());
 }
