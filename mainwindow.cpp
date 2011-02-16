@@ -311,14 +311,14 @@ void MainWindow::quit()
 
 void MainWindow::openFile()
 {
-    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        openFile(currentFilename());
+    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems())
+        openFile(ii->data(Qt::ToolTipRole).toString());
 }
 
 void MainWindow::showFile()
 {
-    if (ui->listWidget->currentItem() && ui->listWidget->currentItem()->isSelected())
-        showFile(currentFilename());
+    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems())
+        showFile(ii->data(Qt::ToolTipRole).toString());
 }
 
 void MainWindow::startUpdateDB()
