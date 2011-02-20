@@ -224,7 +224,7 @@ void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
     {
-        if (isVisible() && isActiveWindow())
+        if (isVisible() && isActiveWindow() && !isMinimized())
         {
             close();
         }
