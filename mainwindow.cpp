@@ -63,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // or to open the folder in which the selected file is (this is "Open Folder")
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     listWidgetContextMenu = new QMenu(this);
-    listWidgetContextMenu->addAction(tr("Open File"), this, SLOT(openFile()));
-    listWidgetContextMenu->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open Folder"), this, SLOT(showFile()));
+    listWidgetContextMenu->addAction(tr("Open"), this, SLOT(openFile()));
+    listWidgetContextMenu->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Show in Folder"), this, SLOT(showFile()));
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
