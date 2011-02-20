@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/images">
         <file>edit-find.svg</file>
-        <file>folder-visiting.svg</file>
-        <file>document-open.svg</file>
     </qresource>
 </RCC>

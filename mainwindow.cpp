@@ -9,6 +9,7 @@
 #include <QFileIconProvider>
 #include <QDesktopWidget>
 #include <QSettings>
+#include <QStyle>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // initialization, so the app is more responsive)
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisible(QSystemTrayIcon::ActivationReason)));
-    trayIcon->setIcon(QIcon(":/images/edit-find.svg"));
+    trayIcon->setIcon(qApp->windowIcon());
     trayIcon->setVisible(true);
     trayIcon->setContextMenu(ui->menuFile);
 
@@ -62,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // or to open the folder in which the selected file is (this is "Open Folder")
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     listWidgetContextMenu = new QMenu(this);
-    listWidgetContextMenu->addAction(QIcon(":/images/document-open.svg"), tr("Open File"), this, SLOT(openFile()));
-    listWidgetContextMenu->addAction(QIcon(":/images/folder-visiting.svg"), tr("Open Folder"), this, SLOT(showFile()));
+    listWidgetContextMenu->addAction(tr("Open File"), this, SLOT(openFile()));
+    listWidgetContextMenu->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open Folder"), this, SLOT(showFile()));
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 

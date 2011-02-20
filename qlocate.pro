@@ -24,6 +24,4 @@ RESOURCES += \
     res.qrc
 
 OTHER_FILES += \
-    folder-visiting.svg \
-    edit-find.svg \
-    document-open.svg
+    edit-find.svg
