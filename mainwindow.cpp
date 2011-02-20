@@ -197,7 +197,7 @@ void MainWindow::startSearching()
     args << query;
     locate->start("locate", args);
 
-    setLabelText(tr("Searching..."));
+    setLabelText(tr("Searching (press Esc to stop)..."));
     nextEllipsisCount = 1;
     animateEllipsisTimer->start();
     isSearching = true;
@@ -340,9 +340,9 @@ void MainWindow::animateEllipsis()
     QString text;
     switch(nextEllipsisCount)
     {
-    case 1: text = tr("Searching.");   nextEllipsisCount = 2; break;
-    case 2: text = tr("Searching..");  nextEllipsisCount = 3; break;
-    case 3: text = tr("Searching..."); nextEllipsisCount = 1; break;
+    case 1: text = tr("Searching (press Esc to stop).");   nextEllipsisCount = 2; break;
+    case 2: text = tr("Searching (press Esc to stop)..");  nextEllipsisCount = 3; break;
+    case 3: text = tr("Searching (press Esc to stop)..."); nextEllipsisCount = 1; break;
     }
     setLabelText(text);
 }
