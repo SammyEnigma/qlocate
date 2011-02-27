@@ -347,7 +347,8 @@ void MainWindow::startUpdateDB()
 
 void MainWindow::showContextMenu(QPoint p)
 {
-    listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
+    if (!ui->listWidget->selectedItems().empty())
+        listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
 }
 
 void MainWindow::animateEllipsis()
