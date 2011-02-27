@@ -61,6 +61,7 @@ private:
     QString homePath;
     bool isSearching;
     bool isLabelTextRed;
+    bool isListBoxCleared;
 };
 
 #endif // MAINWINDOW_H

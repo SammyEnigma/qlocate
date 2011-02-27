@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // activate the global shortcut
     QxtGlobalShortcut* hotkeyHandle = new QxtGlobalShortcut(this);
-    hotkeyHandle->setShortcut(QKeySequence("Meta+S"));
+    hotkeyHandle->setShortcut(QKeySequence("Meta+Z"));
     hotkeyHandle->setEnabled(true);
     connect(hotkeyHandle, SIGNAL(activated()), this, SLOT(toggleVisible()));
 
@@ -163,12 +163,10 @@ void MainWindow::startSearching()
     // if a previous search is running stop it
     stopSearching();
 
-    // empty the list from filenames from previous searches
-    ui->listWidget->clear();
-
     // if there is no query just clear the list and stop any previous searches
     if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
     {
+        ui->listWidget->clear();
         setLabelText(tr("Ready."));
         return;
     }
@@ -210,6 +208,7 @@ void MainWindow::startSearching()
     animateEllipsisTimer->start();
     isSearching = true;
     setCursor(Qt::BusyCursor);
+    isListBoxCleared = false;
 }
 
 void MainWindow::stopSearching()
@@ -291,6 +290,11 @@ void MainWindow::readLocateOutput()
 
     // now we add the collected filenames and icons to the list widget
     // this doesn't seem to take much time
+    if (!isListBoxCleared)
+    {
+        ui->listWidget->clear();
+        isListBoxCleared = true;
+    }
     foreach(QListWidgetItem* item, items)
         ui->listWidget->addItem(item);
 
