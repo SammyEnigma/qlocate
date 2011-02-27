@@ -10,6 +10,7 @@
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QStyle>
+#include <QxtGlobalShortcut>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -92,6 +93,12 @@ MainWindow::MainWindow(QWidget *parent) :
                             available_geom.height() / 2 - current_geom.height() / 2,
                             current_geom.width(),
                             current_geom.height());
+
+    // activate the global shortcut
+    QxtGlobalShortcut* hotkeyHandle = new QxtGlobalShortcut(this);
+    hotkeyHandle->setShortcut(QKeySequence("Meta+S"));
+    hotkeyHandle->setEnabled(true);
+    connect(hotkeyHandle, SIGNAL(activated()), this, SLOT(toggleVisible()));
 
     restoreSettings();
 }
@@ -223,17 +230,20 @@ void MainWindow::stopSearching()
 void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 {
     if (QSystemTrayIcon::Trigger == reason)
+        toggleVisible();
+}
+
+void MainWindow::toggleVisible()
+{
+    if (isVisible() && isActiveWindow() && !isMinimized())
     {
-        if (isVisible() && isActiveWindow() && !isMinimized())
-        {
-            close();
-        }
-        else
-        {
-            show();
-            raise();
-            activateWindow();
-        }
+        close();
+    }
+    else
+    {
+        show();
+        raise();
+        activateWindow();
     }
 }
 

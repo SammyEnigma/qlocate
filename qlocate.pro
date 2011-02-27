@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG  += qxt
+QXT     += core gui
 
 TARGET = qlocate
 TEMPLATE = app

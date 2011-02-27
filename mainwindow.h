@@ -24,6 +24,7 @@ private slots:
     void startSearching();
     void stopSearching();
     void toggleVisible(QSystemTrayIcon::ActivationReason);
+    void toggleVisible();
     void readLocateOutput();
     void quit();
     void openFile();
