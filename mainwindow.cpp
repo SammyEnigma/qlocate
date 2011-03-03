@@ -11,6 +11,8 @@
 #include <QSettings>
 #include <QStyle>
 #include <QxtGlobalShortcut>
+#include <QInputDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -95,10 +97,10 @@ MainWindow::MainWindow(QWidget *parent) :
                             current_geom.height());
 
     // activate the global shortcut
-    QxtGlobalShortcut* hotkeyHandle = new QxtGlobalShortcut(this);
-    hotkeyHandle->setShortcut(QKeySequence("Meta+Z"));
-    hotkeyHandle->setEnabled(true);
-    connect(hotkeyHandle, SIGNAL(activated()), this, SLOT(toggleVisible()));
+    globalHotKey = new QxtGlobalShortcut(this);
+    globalHotKey->setEnabled(true);
+    connect(globalHotKey, SIGNAL(activated()), this, SLOT(toggleVisible()));
+    connect(ui->actionGlobal_Hotkey, SIGNAL(triggered()), this, SLOT(changeGlobalHotkey()));
 
     restoreSettings();
 }
@@ -396,6 +398,7 @@ void MainWindow::restoreSettings()
     ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
     if (ui->checkBoxSaveWindowPosition->isChecked())
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
+    globalHotKey->setShortcut(QKeySequence::fromString(settings.value("Options/GlobalHotkey", "Meta+G").toString()));
 }
 
 void MainWindow::saveSettings()
@@ -409,6 +412,7 @@ void MainWindow::saveSettings()
     settings.setValue("Options/MatchWholePath", ui->checkBoxMatchWholePath->isChecked());
     settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
     settings.setValue("Window/Geometry", saveGeometry());
+    settings.setValue("Options/GlobalHotkey", globalHotKey->shortcut().toString());
 }
 
 void MainWindow::toggleFullPaths()
@@ -433,4 +437,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 
     QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::changeGlobalHotkey()
+{
+    QString lastGlobalHotKey = globalHotKey->shortcut().toString();
+    while (1)
+    {
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Change Global Hotkey"),
+                                             tr("Global Hotkey:"), QLineEdit::Normal,
+                                             lastGlobalHotKey, &ok);
+
+        if (ok && !globalHotKey->setShortcut(QKeySequence::fromString(text)))
+        {
+            QMessageBox::warning(this, "", tr("Could not register global hotkey: '%1'").arg(text));
+            globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey));
+        }
+        else
+        {
+            break;
+        }
+    }
 }

@@ -72,6 +72,7 @@
     <addaction name="checkBoxMatchWholePath"/>
     <addaction name="separator"/>
     <addaction name="checkBoxSaveWindowPosition"/>
+    <addaction name="actionGlobal_Hotkey"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOptions"/>
@@ -164,7 +165,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Smart Wildcards</string>
+    <string>Smart &amp;Wildcards</string>
    </property>
    <property name="iconText">
     <string>Smart &amp;Wildcards</string>
@@ -178,13 +179,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Match Whole Path</string>
+    <string>Match Whole &amp;Path</string>
    </property>
    <property name="iconText">
     <string>Match Whole &amp;Path</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionGlobal_Hotkey">
+   <property name="text">
+    <string>Change Global Hotkey...</string>
    </property>
   </action>
  </widget>

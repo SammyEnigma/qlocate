@@ -11,6 +11,7 @@ namespace Ui {
 
 class QProcess;
 class QFileIconProvider;
+class QxtGlobalShortcut;
 
 class MainWindow : public QMainWindow
 {
@@ -33,6 +34,7 @@ private slots:
     void showContextMenu(QPoint p);
     void animateEllipsis();
     void toggleFullPaths();
+    void changeGlobalHotkey();
 
 private:
     bool event(QEvent *event);
@@ -62,6 +64,7 @@ private:
     bool isSearching;
     bool isLabelTextRed;
     bool isListBoxCleared;
+    QxtGlobalShortcut* globalHotKey;
 };
 
 #endif // MAINWINDOW_H
