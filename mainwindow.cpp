@@ -13,6 +13,8 @@
 #include <QxtGlobalShortcut>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -329,7 +331,7 @@ void MainWindow::quit()
 void MainWindow::openFile()
 {
     foreach (QListWidgetItem* ii, ui->listWidget->selectedItems())
-        openFile(ii->data(Qt::ToolTipRole).toString());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(ii->data(Qt::ToolTipRole).toString()));
 }
 
 void MainWindow::showFile()
@@ -341,7 +343,7 @@ void MainWindow::showFile()
 void MainWindow::startUpdateDB()
 {
 #ifdef Q_OS_WIN32
-    openFile("updatedb");
+    QProcess::startDetached("updatedb");
 #else
     QProcess::startDetached("gksudo updatedb");
 #endif
@@ -459,4 +461,14 @@ void MainWindow::changeGlobalHotkey()
             break;
         }
     }
+}
+
+void MainWindow::showFile(QString filename)
+{
+#ifdef Q_OS_WIN32
+    QProcess::startDetached(QString("explorer /select,\"%1\"").arg(filename));
+#else
+    filename.resize(filename.lastIndexOf(QDir::separator()) + 1);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
+#endif
 }

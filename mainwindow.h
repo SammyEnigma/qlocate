@@ -41,7 +41,6 @@ private:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
     QString currentFilename();
-    void openFile(QString filename);
     void showFile(QString filename);
     void restoreSettings();
     void saveSettings();

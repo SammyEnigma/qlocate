@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    shellexec.cpp \
     dragawarelistwidget.cpp
 
 HEADERS  += mainwindow.h \
