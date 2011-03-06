@@ -444,23 +444,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::changeGlobalHotkey()
 {
     QString lastGlobalHotKey = globalHotKey->shortcut().toString();
-    while (1)
+    bool failed = false;
+    do
     {
         bool ok;
         QString text = QInputDialog::getText(this, tr("Change Global Hotkey"),
                                              tr("Global Hotkey:"), QLineEdit::Normal,
                                              lastGlobalHotKey, &ok);
-
-        if (ok && !globalHotKey->setShortcut(QKeySequence::fromString(text)))
+        failed = (ok && !globalHotKey->setShortcut(QKeySequence::fromString(text)));
+        if (failed)
         {
             QMessageBox::warning(this, "", tr("Could not register global hotkey: '%1'").arg(text));
-            globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey));
+            globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey)); // revert to old hotkey
         }
-        else
-        {
-            break;
-        }
-    }
+    } while (failed);
 }
 
 void MainWindow::showFile(QString filename)
