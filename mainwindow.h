@@ -35,6 +35,7 @@ private slots:
     void animateEllipsis();
     void toggleFullPaths();
     void changeGlobalHotkey();
+    void restoreDefaults();
 
 private:
     bool event(QEvent *event);

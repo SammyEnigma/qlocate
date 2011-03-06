@@ -104,6 +104,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(globalHotKey, SIGNAL(activated()), this, SLOT(toggleVisible()));
     connect(ui->actionGlobal_Hotkey, SIGNAL(triggered()), this, SLOT(changeGlobalHotkey()));
 
+    // connect 'restore defaults'
+    connect(ui->actionRestore_Defaults, SIGNAL(triggered()), this, SLOT(restoreDefaults()));
+
+    restoreDefaults();
     restoreSettings();
 }
 
@@ -391,30 +395,42 @@ bool MainWindow::event(QEvent *e)
 void MainWindow::restoreSettings()
 {
     QSettings settings;
-    ui->checkBoxCaseSensitive->setChecked(settings.value("Options/CaseSensitive", ui->checkBoxCaseSensitive->isChecked()).toBool());
-    ui->checkBoxRegExp->setChecked(settings.value("Options/RegExp", ui->checkBoxRegExp->isChecked()).toBool());
-    ui->checkBoxSearchOnlyHome->setChecked(settings.value("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked()).toBool());
-    ui->checkBoxShowFullPath->setChecked(settings.value("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked()).toBool());
-    ui->checkBoxSmartWildcard->setChecked(settings.value("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked()).toBool());
-    ui->checkBoxMatchWholePath->setChecked(settings.value("Options/MatchWholePath", ui->checkBoxMatchWholePath->isChecked()).toBool());
-    ui->checkBoxSaveWindowPosition->setChecked(settings.value("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked()).toBool());
-    if (ui->checkBoxSaveWindowPosition->isChecked())
+    settings.beginGroup("Options");
+    if (settings.contains("CaseSensitive"))
+        ui->checkBoxCaseSensitive->setChecked(settings.value("CaseSensitive").toBool());
+    if (settings.contains("RegExp"))
+        ui->checkBoxRegExp->setChecked(settings.value("RegExp").toBool());
+    if (settings.contains("SearchOnlyHome"))
+        ui->checkBoxSearchOnlyHome->setChecked(settings.value("SearchOnlyHome").toBool());
+    if (settings.contains("ShowFullPath"))
+        ui->checkBoxShowFullPath->setChecked(settings.value("ShowFullPath").toBool());
+    if (settings.contains("SpaceIsWildcard"))
+        ui->checkBoxSmartWildcard->setChecked(settings.value("SpaceIsWildcard").toBool());
+    if (settings.contains("MatchWholePath"))
+        ui->checkBoxMatchWholePath->setChecked(settings.value("MatchWholePath").toBool());
+    if (settings.contains("SaveWindowPosition"))
+        ui->checkBoxSaveWindowPosition->setChecked(settings.value("SaveWindowPosition").toBool());
+    if (settings.contains("GlobalHotkey"))
+        globalHotKey->setShortcut(QKeySequence::fromString(settings.value("GlobalHotkey").toString()));
+    settings.endGroup();
+    if (ui->checkBoxSaveWindowPosition->isChecked() && settings.contains("Window/Geometry"))
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
-    globalHotKey->setShortcut(QKeySequence::fromString(settings.value("Options/GlobalHotkey", "Meta+G").toString()));
 }
 
 void MainWindow::saveSettings()
 {
     QSettings settings;
-    settings.setValue("Options/CaseSensitive", ui->checkBoxCaseSensitive->isChecked());
-    settings.setValue("Options/RegExp", ui->checkBoxRegExp->isChecked());
-    settings.setValue("Options/SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
-    settings.setValue("Options/ShowFullPath", ui->checkBoxShowFullPath->isChecked());
-    settings.setValue("Options/SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked());
-    settings.setValue("Options/MatchWholePath", ui->checkBoxMatchWholePath->isChecked());
-    settings.setValue("Options/SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
+    settings.beginGroup("Options");
+    settings.setValue("CaseSensitive", ui->checkBoxCaseSensitive->isChecked());
+    settings.setValue("RegExp", ui->checkBoxRegExp->isChecked());
+    settings.setValue("SearchOnlyHome", ui->checkBoxSearchOnlyHome->isChecked());
+    settings.setValue("ShowFullPath", ui->checkBoxShowFullPath->isChecked());
+    settings.setValue("SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked());
+    settings.setValue("MatchWholePath", ui->checkBoxMatchWholePath->isChecked());
+    settings.setValue("SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
+    settings.setValue("GlobalHotkey", globalHotKey->shortcut().toString());
+    settings.endGroup();
     settings.setValue("Window/Geometry", saveGeometry());
-    settings.setValue("Options/GlobalHotkey", globalHotKey->shortcut().toString());
 }
 
 void MainWindow::toggleFullPaths()
@@ -468,4 +484,20 @@ void MainWindow::showFile(QString filename)
     filename.resize(filename.lastIndexOf(QDir::separator()) + 1);
     QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
 #endif
+}
+
+void MainWindow::restoreDefaults()
+{
+    ui->checkBoxCaseSensitive->setChecked(false);
+    ui->checkBoxRegExp->setChecked(false);
+#ifdef Q_OS_WIN32
+    ui->checkBoxSearchOnlyHome->setChecked(false);
+#else
+    ui->checkBoxSearchOnlyHome->setChecked(true);
+#endif
+    ui->checkBoxShowFullPath->setChecked(false);
+    ui->checkBoxSmartWildcard->setChecked(true);
+    ui->checkBoxMatchWholePath->setChecked(false);
+    ui->checkBoxSaveWindowPosition->setChecked(true);
+    globalHotKey->setShortcut(QKeySequence::fromString("Meta+G"));
 }
