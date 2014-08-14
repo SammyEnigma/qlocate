@@ -1,9 +1,9 @@
 #include "dragawarelistwidget.h"
-#include <QtCore/QMimeData>
-#include <QtCore/QUrl>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
+#include <QMimeData>
+#include <QUrl>
+#include <QKeyEvent>
+#include <QApplication>
+#include <QClipboard>
 
 DragAwareListWidget::DragAwareListWidget(QWidget *parent) :
     QListWidget(parent)
