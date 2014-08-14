@@ -26,3 +26,5 @@ RESOURCES += \
 
 OTHER_FILES += \
     edit-find.svg
+
+DEFINES += DISABLE_QXT
