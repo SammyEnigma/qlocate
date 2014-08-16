@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    // initialize misc. variables
     ui->setupUi(this);
 
     reallyQuit = false;
@@ -33,42 +32,41 @@ MainWindow::MainWindow(QWidget *parent) :
     homePath = QDir::toNativeSeparators(QDir::homePath()) + QDir::separator();
     isSearching = false;
 
-    // show the app is busy searching by making an animation of sorts,
-    // this is done by showing ellipsis after "Searching "one at a time
-    // "Searching.", "Searching..", "Searching..."
+    // Show the app is busy searching, by making an animation of sorts. This is
+    // done by showing ellipsis after "Searching ", one at a time "Searching.",
+    // then "Searching..", then "Searching...", then "Searching." again, and so
+    // on.
     animateEllipsisTimer = new QTimer(this);
     connect(animateEllipsisTimer, SIGNAL(timeout()), this, SLOT(animateEllipsis()));
     animateEllipsisTimer->setInterval(333);
 
-    // initialize the auto-search timer
-    // there is no search button in our app
-    // application starts searching automatically
-    // a fixed time interval after last key typed by user
+    // Initialize the auto-search timer. There is no search button in our
+    // application, instead it starts searching automatically after a fixed
+    // time interval after last key typed by the user.
     QTimer* autoStartSearchTimer = new QTimer(this);
     autoStartSearchTimer->setInterval(500);
     autoStartSearchTimer->setSingleShot(true);
     connect(autoStartSearchTimer, SIGNAL(timeout()), this, SLOT(startSearching()));
     connect(ui->lineEdit, SIGNAL(textEdited(QString)), autoStartSearchTimer, SLOT(start()));
 
-    // initialize the tray icon
-    // the application resides in the tray and when
-    // user clicks on the tray icon the dialog is shown
-    // this is to speed things up (no process loading and
-    // initialization, so the app is more responsive)
+    // Initialize the tray icon. The application resides in the tray and when
+    // the user clicks on the tray icon the dialog is shown. This is to speed
+    // things up (no process loading and initialization, so the app is more
+    // responsive).
     QSystemTrayIcon* trayIcon = new QSystemTrayIcon(this);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisible(QSystemTrayIcon::ActivationReason)));
     trayIcon->setIcon(qApp->windowIcon());
     trayIcon->setVisible(true);
     trayIcon->setContextMenu(ui->menuFile);
 
-    // connect the file menu signals
+    // Connect the file menu signals.
     connect(ui->actionUpdate_Database, SIGNAL(triggered()), this, SLOT(startUpdateDB()));
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 
-    // initialize list widget context menu
-    // the user can right click on a found file to pop up the context menu
-    // the context menu can be used to open the selected file (this is "Open File")
-    // or to open the folder in which the selected file is (this is "Open Folder")
+    // Initialize list widget context menu. The user can right click on a found
+    // file to pop up the context menu. The context menu can be used to open
+    // the selected file (this is "Open File"), or to open the folder in which
+    // the selected file is (this is "Open Folder").
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     listWidgetContextMenu = new QMenu(this);
     listWidgetContextMenu->addAction(tr("Open"), this, SLOT(openFile()));
@@ -76,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
-    // initialize the checkboxes for various options
+    // Initialize the checkboxes for various options.
     connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxSearchOnlyHome, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
@@ -93,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     readLocateOutputTimer->setSingleShot(true);
     connect(readLocateOutputTimer, SIGNAL(timeout()), this, SLOT(readLocateOutput()));
 
-    // place the window at the center of the screen
+    // Place the window at the center of the screen.
     QRect available_geom = QDesktopWidget().availableGeometry();
     QRect current_geom = frameGeometry();
     setGeometry(available_geom.width() / 2 - current_geom.width() / 2,
@@ -102,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 current_geom.height());
 
 #ifndef DISABLE_QXT
-    // activate the global shortcut
+    // Activate the global shortcut.
     globalHotKey = new QxtGlobalShortcut(this);
     globalHotKey->setEnabled(true);
     connect(globalHotKey, SIGNAL(activated()), this, SLOT(toggleVisible()));
@@ -111,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionGlobal_Hotkey->setVisible(false);
 #endif
 
-    // connect 'restore defaults'
+    // Connect 'restore defaults'.
     connect(ui->actionRestore_Defaults, SIGNAL(triggered()), this, SLOT(restoreDefaults()));
 
     restoreDefaults();
@@ -159,8 +157,8 @@ void MainWindow::setRedLabelText(const QString& text)
 
 void MainWindow::startSearching()
 {
-    // if the query (and checkboxes) are the same,
-    // no need to restart the same query
+    // If the query (and checkboxes) are the same, no need to restart the same
+    // query.
     QVariantList state;
     state
             << ui->checkBoxCaseSensitive->isChecked()
@@ -174,10 +172,10 @@ void MainWindow::startSearching()
     }
     lastState = state;
 
-    // if a previous search is running stop it
+    // If a previous search is running stop it.
     stopSearching();
 
-    // if there is no query just clear the list and stop any previous searches
+    // If there is no query just clear the list and stop any previous searches.
     if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>")) {
         ui->listWidget->clear();
         setLabelText(tr("Ready."));
@@ -192,7 +190,7 @@ void MainWindow::startSearching()
         }
     }
 
-    // the arguments to pass to locate
+    // The arguments to pass to locate.
     QStringList args;
 #ifdef Q_OS_WIN32
     args << "-lfd";
@@ -262,7 +260,7 @@ void MainWindow::toggleVisible()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // if there is a search going on stop it
+    // If there is a search going on stop it.
     if (isSearching) {
         stopSearching();
         setLabelText("Stopped.");
@@ -276,11 +274,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readLocateOutput()
 {
-    // getting the icon for each file seems to be a lengthy operation
-    // taking much longer than adding the item to the list
-    // so getting the icons is made a separate cycle which can be interrupted
-    // if there are pending events like keyboard input and such
-    // that way the app is not unresponsive
+    // Getting the icon for each file seems to be a lengthy operation, taking
+    // much longer than adding the item to the list, so getting the icons is
+    // made a separate cycle which can be interrupted if there are pending
+    // events (like keyboard input and such). That way the app is not
+    // unresponsive.
     QVector<QListWidgetItem*> items;
     while (locate->canReadLine() && !qApp->hasPendingEvents()) {
         QString filename = QString::fromUtf8(locate->readLine()).trimmed();
@@ -301,8 +299,8 @@ void MainWindow::readLocateOutput()
         items.push_back(item);
     }
 
-    // now we add the collected filenames and icons to the list widget
-    // this doesn't seem to take much time
+    // Now we add the collected filenames and icons to the list widget.
+    // This doesn't seem to take much time.
     if (!isListBoxCleared) {
         ui->listWidget->clear();
         isListBoxCleared = true;
@@ -311,15 +309,13 @@ void MainWindow::readLocateOutput()
         ui->listWidget->addItem(item);
     }
 
-    // if there still are lines to be read then the first loop
-    // was interrupted, so we schedule a timer to return to
-    // this function after we have processed the pending events
+    // If there more lines can be read, we schedule a timer to return to this
+    // function after we have processed any pending events.
     if (locate->canReadLine()) {
         readLocateOutputTimer->start();
-    }
-    // if there are no more lines to be read, the locate process
-    // might have ended
-    else if (QProcess::NotRunning == locate->state()) {
+    } else if (QProcess::NotRunning == locate->state()) {
+        // If there no more lines can be read, the locate process
+        // might have ended.
         stopSearching();
 
         switch (ui->listWidget->count()) {
@@ -501,9 +497,11 @@ void MainWindow::changeGlobalHotkey()
                                              tr("Global Hotkey:"), QLineEdit::Normal,
                                              lastGlobalHotKey, &ok);
         failed = (ok && !globalHotKey->setShortcut(QKeySequence::fromString(text)));
+
+        // If setting the new hotkey fails, revert to the old hotkey.
         if (failed) {
             QMessageBox::warning(this, "", tr("Could not register global hotkey: '%1'").arg(text));
-            globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey)); // revert to old hotkey
+            globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey));
         }
     } while (failed);
 }
