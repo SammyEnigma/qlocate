@@ -97,9 +97,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QRect available_geom = QDesktopWidget().availableGeometry();
     QRect current_geom = frameGeometry();
     setGeometry(available_geom.width() / 2 - current_geom.width() / 2,
-                            available_geom.height() / 2 - current_geom.height() / 2,
-                            current_geom.width(),
-                            current_geom.height());
+                available_geom.height() / 2 - current_geom.height() / 2,
+                current_geom.width(),
+                current_geom.height());
 
 #ifndef DISABLE_QXT
     // activate the global shortcut
@@ -139,8 +139,7 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::setLabelText(const QString& text)
 {
-    if (isLabelTextRed)
-    {
+    if (isLabelTextRed) {
         ui->labelStatus->setPalette(originalLabelPalette);
         isLabelTextRed = false;
     }
@@ -149,8 +148,7 @@ void MainWindow::setLabelText(const QString& text)
 
 void MainWindow::setRedLabelText(const QString& text)
 {
-    if (!isLabelTextRed)
-    {
+    if (!isLabelTextRed) {
         QPalette palette = originalLabelPalette;
         palette.setColor(ui->labelStatus->foregroundRole(), Qt::red);
         ui->labelStatus->setPalette(palette);
@@ -171,49 +169,52 @@ void MainWindow::startSearching()
             << ui->checkBoxMatchWholePath->isChecked()
             << ui->checkBoxSmartWildcard->isChecked()
             << ui->lineEdit->text();
-    if (state == lastState)
+    if (state == lastState) {
         return;
+    }
     lastState = state;
 
     // if a previous search is running stop it
     stopSearching();
 
     // if there is no query just clear the list and stop any previous searches
-    if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>"))
-    {
+    if (ui->lineEdit->text().isEmpty() || ui->lineEdit->text() == tr("<type here>")) {
         ui->listWidget->clear();
         setLabelText(tr("Ready."));
         return;
     }
 
     QString query = ui->lineEdit->text();
-    if (ui->checkBoxSmartWildcard->isChecked() && !ui->checkBoxRegExp->isChecked())
-    {
+    if (ui->checkBoxSmartWildcard->isChecked() && !ui->checkBoxRegExp->isChecked()) {
         query.replace(' ', '*');
-        if (query[0] != '*' && query[query.size()-1] != '*')
+        if (query[0] != '*' && query[query.size()-1] != '*') {
             query = '*' + query + '*';
+        }
     }
 
     // the arguments to pass to locate
     QStringList args;
 #ifdef Q_OS_WIN32
     args << "-lfd";
-    if (ui->checkBoxRegExp->isChecked())
-    {
-        if (ui->checkBoxCaseSensitive->isChecked())
+    if (ui->checkBoxRegExp->isChecked()) {
+        if (ui->checkBoxCaseSensitive->isChecked()) {
             args << "-rc";
-        else
+        } else {
             args << "-r";
+        }
     }
     args << "--";
 #else
     args << "--existing";
-    if (!ui->checkBoxMatchWholePath->isChecked())
+    if (!ui->checkBoxMatchWholePath->isChecked()) {
         args << "--basename";
-    if (!ui->checkBoxCaseSensitive->isChecked())
+    }
+    if (!ui->checkBoxCaseSensitive->isChecked()) {
         args << "--ignore-case";
-    if (ui->checkBoxRegExp->isChecked())
+    }
+    if (ui->checkBoxRegExp->isChecked()) {
         args << "--regexp";
+    }
 #endif
     args << query;
     locate->start("locate", args);
@@ -228,10 +229,10 @@ void MainWindow::startSearching()
 
 void MainWindow::stopSearching()
 {
-    if (!isSearching)
+    if (!isSearching) {
         return;
-    if (locate->state() != QProcess::NotRunning)
-    {
+    }
+    if (locate->state() != QProcess::NotRunning) {
         locate->terminate();
         locate->waitForFinished();
     }
@@ -243,18 +244,16 @@ void MainWindow::stopSearching()
 
 void MainWindow::toggleVisible(QSystemTrayIcon::ActivationReason reason)
 {
-    if (QSystemTrayIcon::Trigger == reason)
+    if (QSystemTrayIcon::Trigger == reason) {
         toggleVisible();
+    }
 }
 
 void MainWindow::toggleVisible()
 {
-    if (isVisible() && isActiveWindow() && !isMinimized())
-    {
+    if (isVisible() && isActiveWindow() && !isMinimized()) {
         close();
-    }
-    else
-    {
+    } else {
         show();
         raise();
         activateWindow();
@@ -264,14 +263,12 @@ void MainWindow::toggleVisible()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // if there is a search going on stop it
-    if (isSearching)
-    {
+    if (isSearching) {
         stopSearching();
         setLabelText("Stopped.");
     }
 
-    if (!reallyQuit)
-    {
+    if (!reallyQuit) {
         hide();
         event->ignore();
     }
@@ -285,19 +282,20 @@ void MainWindow::readLocateOutput()
     // if there are pending events like keyboard input and such
     // that way the app is not unresponsive
     QVector<QListWidgetItem*> items;
-    while (locate->canReadLine() && !qApp->hasPendingEvents())
-    {
+    while (locate->canReadLine() && !qApp->hasPendingEvents()) {
         QString filename = QString::fromUtf8(locate->readLine()).trimmed();
 
-        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(homePath) != 0)
+        if (ui->checkBoxSearchOnlyHome->isChecked() && filename.indexOf(homePath) != 0) {
             continue;
+        }
 
         QListWidgetItem* item = new QListWidgetItem;
         item->setIcon(iconProvider->icon(QFileInfo(filename)));
-        if (ui->checkBoxShowFullPath->isChecked())
+        if (ui->checkBoxShowFullPath->isChecked()) {
             item->setData(Qt::DisplayRole, filename);
-        else
+        } else {
             item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
+        }
         item->setData(Qt::ToolTipRole, filename);
 
         items.push_back(item);
@@ -305,30 +303,35 @@ void MainWindow::readLocateOutput()
 
     // now we add the collected filenames and icons to the list widget
     // this doesn't seem to take much time
-    if (!isListBoxCleared)
-    {
+    if (!isListBoxCleared) {
         ui->listWidget->clear();
         isListBoxCleared = true;
     }
-    foreach(QListWidgetItem* item, items)
+    foreach(QListWidgetItem* item, items) {
         ui->listWidget->addItem(item);
+    }
 
     // if there still are lines to be read then the first loop
     // was interrupted, so we schedule a timer to return to
     // this function after we have processed the pending events
-    if (locate->canReadLine())
+    if (locate->canReadLine()) {
         readLocateOutputTimer->start();
+    }
     // if there are no more lines to be read, the locate process
     // might have ended
-    else if (QProcess::NotRunning == locate->state())
-    {
+    else if (QProcess::NotRunning == locate->state()) {
         stopSearching();
 
-        switch (ui->listWidget->count())
-        {
-        case 0: setRedLabelText(tr("Nothing was found.")); break;
-        case 1: setLabelText(tr("1 file was found.")); break;
-        default: setLabelText(tr("%1 files were found.").arg(ui->listWidget->count())); break;
+        switch (ui->listWidget->count()) {
+        case 0:
+            setRedLabelText(tr("Nothing was found."));
+            break;
+        case 1:
+            setLabelText(tr("1 file was found."));
+            break;
+        default:
+            setLabelText(tr("%1 files were found.").arg(ui->listWidget->count()));
+            break;
         }
     }
 }
@@ -341,14 +344,16 @@ void MainWindow::quit()
 
 void MainWindow::openFile()
 {
-    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems())
+    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems()) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(ii->data(Qt::ToolTipRole).toString()));
+    }
 }
 
 void MainWindow::showFile()
 {
-    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems())
+    foreach (QListWidgetItem* ii, ui->listWidget->selectedItems()) {
         showFile(ii->data(Qt::ToolTipRole).toString());
+    }
 }
 
 void MainWindow::startUpdateDB()
@@ -362,18 +367,27 @@ void MainWindow::startUpdateDB()
 
 void MainWindow::showContextMenu(QPoint p)
 {
-    if (!ui->listWidget->selectedItems().empty())
+    if (!ui->listWidget->selectedItems().empty()) {
         listWidgetContextMenu->exec(ui->listWidget->mapToGlobal(p));
+    }
 }
 
 void MainWindow::animateEllipsis()
 {
     QString text;
-    switch(nextEllipsisCount)
-    {
-    case 1: text = tr("Searching (press Esc to stop).");   nextEllipsisCount = 2; break;
-    case 2: text = tr("Searching (press Esc to stop)..");  nextEllipsisCount = 3; break;
-    case 3: text = tr("Searching (press Esc to stop)..."); nextEllipsisCount = 1; break;
+    switch(nextEllipsisCount) {
+    case 1:
+        text = tr("Searching (press Esc to stop).");
+        nextEllipsisCount = 2;
+        break;
+    case 2:
+        text = tr("Searching (press Esc to stop)..");
+        nextEllipsisCount = 3;
+        break;
+    case 3:
+        text = tr("Searching (press Esc to stop)...");
+        nextEllipsisCount = 1;
+        break;
     }
     setLabelText(text);
 }
@@ -403,27 +417,36 @@ void MainWindow::restoreSettings()
 {
     QSettings settings;
     settings.beginGroup("Options");
-    if (settings.contains("CaseSensitive"))
+    if (settings.contains("CaseSensitive")) {
         ui->checkBoxCaseSensitive->setChecked(settings.value("CaseSensitive").toBool());
-    if (settings.contains("RegExp"))
+    }
+    if (settings.contains("RegExp")) {
         ui->checkBoxRegExp->setChecked(settings.value("RegExp").toBool());
-    if (settings.contains("SearchOnlyHome"))
+    }
+    if (settings.contains("SearchOnlyHome")) {
         ui->checkBoxSearchOnlyHome->setChecked(settings.value("SearchOnlyHome").toBool());
-    if (settings.contains("ShowFullPath"))
+    }
+    if (settings.contains("ShowFullPath")) {
         ui->checkBoxShowFullPath->setChecked(settings.value("ShowFullPath").toBool());
-    if (settings.contains("SpaceIsWildcard"))
+    }
+    if (settings.contains("SpaceIsWildcard")) {
         ui->checkBoxSmartWildcard->setChecked(settings.value("SpaceIsWildcard").toBool());
-    if (settings.contains("MatchWholePath"))
+    }
+    if (settings.contains("MatchWholePath")) {
         ui->checkBoxMatchWholePath->setChecked(settings.value("MatchWholePath").toBool());
-    if (settings.contains("SaveWindowPosition"))
+    }
+    if (settings.contains("SaveWindowPosition")) {
         ui->checkBoxSaveWindowPosition->setChecked(settings.value("SaveWindowPosition").toBool());
+    }
 #ifndef DISABLE_QXT
-    if (settings.contains("GlobalHotkey"))
+    if (settings.contains("GlobalHotkey")) {
         globalHotKey->setShortcut(QKeySequence::fromString(settings.value("GlobalHotkey").toString()));
+    }
 #endif
     settings.endGroup();
-    if (ui->checkBoxSaveWindowPosition->isChecked() && settings.contains("Window/Geometry"))
+    if (ui->checkBoxSaveWindowPosition->isChecked() && settings.contains("Window/Geometry")) {
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
+    }
 }
 
 void MainWindow::saveSettings()
@@ -446,21 +469,20 @@ void MainWindow::saveSettings()
 
 void MainWindow::toggleFullPaths()
 {
-    for (int ii=0; ii<ui->listWidget->count(); ii++)
-    {
+    for (int ii=0; ii<ui->listWidget->count(); ii++) {
         QListWidgetItem* item = ui->listWidget->item(ii);
         QString filename = item->data(Qt::ToolTipRole).toString();
-        if (ui->checkBoxShowFullPath->isChecked())
+        if (ui->checkBoxShowFullPath->isChecked()) {
             item->setData(Qt::DisplayRole, filename);
-        else
+        } else {
             item->setData(Qt::DisplayRole, filename.mid(filename.lastIndexOf(QDir::separator())+1));
+        }
     }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (isSearching && event->key() == Qt::Key_Escape)
-    {
+    if (isSearching && event->key() == Qt::Key_Escape) {
         stopSearching();
         setLabelText("Stopped.");
     }
@@ -473,15 +495,13 @@ void MainWindow::changeGlobalHotkey()
 {
     QString lastGlobalHotKey = globalHotKey->shortcut().toString();
     bool failed = false;
-    do
-    {
+    do {
         bool ok;
         QString text = QInputDialog::getText(this, tr("Change Global Hotkey"),
                                              tr("Global Hotkey:"), QLineEdit::Normal,
                                              lastGlobalHotKey, &ok);
         failed = (ok && !globalHotKey->setShortcut(QKeySequence::fromString(text)));
-        if (failed)
-        {
+        if (failed) {
             QMessageBox::warning(this, "", tr("Could not register global hotkey: '%1'").arg(text));
             globalHotKey->setShortcut(QKeySequence::fromString(lastGlobalHotKey)); // revert to old hotkey
         }
