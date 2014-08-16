@@ -29,4 +29,6 @@ RESOURCES += \
 OTHER_FILES += \
     edit-find.svg
 
-DEFINES += DISABLE_QXT
+# Uncomment the following line to compile without Qxt (Global hotkey will not
+# be available):
+# DEFINES += DISABLE_QXT
