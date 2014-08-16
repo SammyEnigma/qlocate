@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
     a.setOrganizationDomain("codethesis.com");
     a.setApplicationName("QLocate");
     MainWindow w;
-//    w.show();
 
     return a.exec();
 }
