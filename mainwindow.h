@@ -43,6 +43,7 @@ private slots:
 
 private:
     bool event(QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *ev);
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
     QString currentFilename();

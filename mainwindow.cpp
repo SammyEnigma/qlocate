@@ -74,6 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
+    // Handle up and down arrow in line edit and list widget.
+    ui->lineEdit->installEventFilter(this);
+    ui->listWidget->installEventFilter(this);
+
     // Initialize the checkboxes for various options.
     connect(ui->checkBoxCaseSensitive, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxRegExp, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
@@ -407,6 +411,38 @@ bool MainWindow::event(QEvent *e)
     }
 
     return res;
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
+{
+    // When user types down inside the line edit, we change the focus to the
+    // list widget (and select the first entry). This is done for ergonomic
+    // reasons, so user can just click down multiple times to choose a file,
+    // instead of having to click tab first. Likewise, if the up-arrow is
+    // pressed in the list widget while the current item is the uppermost,
+    // focus goes to the line edit.
+    if (ev->type() == QEvent::KeyPress) {
+        if (obj == ui->lineEdit) {
+            if (ui->listWidget->count() > 0) {
+                QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+                if (keyEvent->key() == Qt::Key_Down) {
+                    ui->listWidget->setFocus(Qt::OtherFocusReason);
+                    ui->listWidget->setCurrentRow(0);
+                    return true;
+                }
+            }
+        } else if (obj == ui->listWidget) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+            if (keyEvent->key() == Qt::Key_Up && ui->listWidget->currentRow() == 0) {
+                ui->lineEdit->setFocus(Qt::OtherFocusReason);
+                ui->listWidget->setCurrentRow(-1);
+                return true;
+            }
+        }
+    }
+
+    // pass the event on to the parent class
+    return QMainWindow::eventFilter(obj, ev);
 }
 
 void MainWindow::restoreSettings()
