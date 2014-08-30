@@ -426,8 +426,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
             if (ui->listWidget->count() > 0) {
                 QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
                 if (keyEvent->key() == Qt::Key_Down) {
+                    // If current row is not set then set it to first row.
+                    if (ui->listWidget->currentRow() < 0) {
+                        ui->listWidget->setCurrentRow(0);
+                    }
                     ui->listWidget->setFocus(Qt::OtherFocusReason);
-                    ui->listWidget->setCurrentRow(0);
                     return true;
                 }
             }
