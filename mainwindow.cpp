@@ -89,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
     connect(locate, SIGNAL(finished(int)), this, SLOT(readLocateOutput()));
+    connect(locate, SIGNAL(error(QProcess::ProcessError)), this, SLOT(locateProcessError()));
 
     readLocateOutputTimer = new QTimer(this);
     readLocateOutputTimer->setInterval(0);
@@ -219,7 +220,6 @@ void MainWindow::startSearching()
     }
 #endif
     args << query;
-    locate->start("locate", args);
 
     setLabelText(tr("Searching (press Esc to stop)..."));
     nextEllipsisCount = 1;
@@ -227,6 +227,8 @@ void MainWindow::startSearching()
     isSearching = true;
     setCursor(Qt::BusyCursor);
     isListBoxCleared = false;
+
+    locate->start("locate", args);
 }
 
 void MainWindow::stopSearching()
@@ -334,6 +336,12 @@ void MainWindow::readLocateOutput()
             break;
         }
     }
+}
+
+void MainWindow::locateProcessError()
+{
+    stopSearching();
+    setRedLabelText(tr("Subprocess failed: ") + locate->errorString());
 }
 
 void MainWindow::quit()

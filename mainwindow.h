@@ -29,6 +29,7 @@ private slots:
     void toggleVisible(QSystemTrayIcon::ActivationReason);
     void toggleVisible();
     void readLocateOutput();
+    void locateProcessError();
     void quit();
     void openFile();
     void showFile();
