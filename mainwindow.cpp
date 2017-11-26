@@ -118,9 +118,9 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     // Connect 'restore defaults'.
-    connect(ui->actionRestore_Defaults, SIGNAL(triggered()), this, SLOT(restoreDefaults()));
+    connect(ui->actionRestore_Defaults, SIGNAL(triggered()), this, SLOT(resetSettings()));
 
-    restoreDefaults();
+    resetSettings();
     restoreSettings();
 }
 
@@ -567,7 +567,7 @@ void MainWindow::showFile(QString filename)
 #endif
 }
 
-void MainWindow::restoreDefaults()
+void MainWindow::resetSettings()
 {
     ui->checkBoxCaseSensitive->setChecked(false);
     ui->checkBoxRegExp->setChecked(false);

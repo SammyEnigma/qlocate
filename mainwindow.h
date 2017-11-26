@@ -73,7 +73,7 @@ private slots:
 #endif
 
     /// Restores the settings to their defaults.
-    void restoreDefaults();
+    void resetSettings();
 
 private:
     bool event(QEvent *event);
