@@ -14,10 +14,7 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QUrl>
-
-#ifndef DISABLE_QXT
 #include <QxtGlobalShortcut>
-#endif
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -114,15 +111,11 @@ MainWindow::MainWindow(QWidget *parent) :
                 currentGeometry.width(),
                 currentGeometry.height());
 
-#ifndef DISABLE_QXT
     // Activate the global shortcut.
     globalHotKey = new QxtGlobalShortcut(this);
     globalHotKey->setEnabled(true);
     connect(globalHotKey, SIGNAL(activated()), this, SLOT(toggleVisible()));
     connect(ui->actionGlobal_Hotkey, SIGNAL(triggered()), this, SLOT(changeGlobalHotkey()));
-#else
-    ui->actionGlobal_Hotkey->setVisible(false);
-#endif
 
     // Connect 'restore defaults'.
     connect(ui->actionRestore_Defaults, SIGNAL(triggered()), this, SLOT(resetSettings()));
@@ -495,11 +488,9 @@ void MainWindow::restoreSettings()
     if (settings.contains("SaveWindowPosition")) {
         ui->checkBoxSaveWindowPosition->setChecked(settings.value("SaveWindowPosition").toBool());
     }
-#ifndef DISABLE_QXT
     if (settings.contains("GlobalHotkey")) {
         globalHotKey->setShortcut(QKeySequence::fromString(settings.value("GlobalHotkey").toString()));
     }
-#endif
     settings.endGroup();
     if (ui->checkBoxSaveWindowPosition->isChecked() && settings.contains("Window/Geometry")) {
         restoreGeometry(settings.value("Window/Geometry", saveGeometry()).toByteArray());
@@ -517,9 +508,7 @@ void MainWindow::saveSettings()
     settings.setValue("SpaceIsWildcard", ui->checkBoxSmartWildcard->isChecked());
     settings.setValue("MatchWholePath", ui->checkBoxMatchWholePath->isChecked());
     settings.setValue("SaveWindowPosition", ui->checkBoxSaveWindowPosition->isChecked());
-#ifndef DISABLE_QXT
     settings.setValue("GlobalHotkey", globalHotKey->shortcut().toString());
-#endif
     settings.endGroup();
     settings.setValue("Window/Geometry", saveGeometry());
 }
@@ -547,7 +536,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     QMainWindow::keyPressEvent(event);
 }
 
-#ifndef DISABLE_QXT
 void MainWindow::changeGlobalHotkey()
 {
     QString lastGlobalHotKey = globalHotKey->shortcut().toString();
@@ -566,7 +554,6 @@ void MainWindow::changeGlobalHotkey()
         }
     } while (failed);
 }
-#endif
 
 void MainWindow::showFile(QString filename)
 {
@@ -591,7 +578,5 @@ void MainWindow::resetSettings()
     ui->checkBoxSmartWildcard->setChecked(true);
     ui->checkBoxMatchWholePath->setChecked(false);
     ui->checkBoxSaveWindowPosition->setChecked(true);
-#ifndef DISABLE_QXT
     globalHotKey->setShortcut(QKeySequence::fromString("Meta+G"));
-#endif
 }
