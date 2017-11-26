@@ -100,12 +100,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(readLocateOutputTimer, SIGNAL(timeout()), this, SLOT(readLocateOutput()));
 
     // Place the window at the center of the screen.
-    QRect available_geom = QDesktopWidget().availableGeometry();
-    QRect current_geom = frameGeometry();
-    setGeometry(available_geom.width() / 2 - current_geom.width() / 2,
-                available_geom.height() / 2 - current_geom.height() / 2,
-                current_geom.width(),
-                current_geom.height());
+    QRect availableGeometry = QDesktopWidget().availableGeometry();
+    QRect currentGeometry = frameGeometry();
+    setGeometry(availableGeometry.width() / 2 - currentGeometry.width() / 2,
+                availableGeometry.height() / 2 - currentGeometry.height() / 2,
+                currentGeometry.width(),
+                currentGeometry.height());
 
 #ifndef DISABLE_QXT
     // Activate the global shortcut.
