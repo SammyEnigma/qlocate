@@ -41,8 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     animateEllipsisTimer->setInterval(333);
 
     // Initialize the auto-search timer. There is no search button in our
-    // application, instead it starts searching automatically after a fixed
-    // time interval after last key typed by the user.
+    // application. Instead, it starts searching automatically some time after
+    // the user stops typing.
     QTimer* autoStartSearchTimer = new QTimer(this);
     autoStartSearchTimer->setInterval(500);
     autoStartSearchTimer->setSingleShot(true);
@@ -74,7 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->listWidget, SIGNAL(activated(QModelIndex)), this, SLOT(openFile()));
 
-    // Handle up and down arrow in line edit and list widget.
+    // Handle up and down arrow in line edit and list widget. We want to switch
+    // between the line edit and the list widget with the up and down arrows.
     ui->lineEdit->installEventFilter(this);
     ui->listWidget->installEventFilter(this);
 
@@ -86,11 +87,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBoxSmartWildcard, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
     connect(ui->checkBoxMatchWholePath, SIGNAL(toggled(bool)), autoStartSearchTimer, SLOT(start()));
 
+    // Initialize the "locate" process.
     locate = new QProcess(this);
     connect(locate, SIGNAL(readyReadStandardOutput()), this, SLOT(readLocateOutput()));
     connect(locate, SIGNAL(finished(int)), this, SLOT(readLocateOutput()));
     connect(locate, SIGNAL(error(QProcess::ProcessError)), this, SLOT(locateProcessError()));
 
+    // Initialize the reading from locate's stdout.
     readLocateOutputTimer = new QTimer(this);
     readLocateOutputTimer->setInterval(0);
     readLocateOutputTimer->setSingleShot(true);
