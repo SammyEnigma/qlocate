@@ -93,6 +93,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(locate, SIGNAL(finished(int)), this, SLOT(readLocateOutput()));
     connect(locate, SIGNAL(error(QProcess::ProcessError)), this, SLOT(locateProcessError()));
 
+    // Because updatedb skips encrypted home folders, we have created our
+    // own database, and we need to tell locate to use it in addition to the
+    // default one by setting the LOCATE_PATH environment variable.
+    QProcessEnvironment env = locate->processEnvironment();
+    env.insert("LOCATE_PATH", QString("%1/.config/qlocate/mlocate.db").arg(QDir::homePath()));
+    locate->setProcessEnvironment(env);
+
     // Initialize the reading from locate's stdout.
     readLocateOutputTimer = new QTimer(this);
     readLocateOutputTimer->setInterval(0);
@@ -372,7 +379,11 @@ void MainWindow::startUpdateDB()
 #ifdef Q_OS_WIN32
     QProcess::startDetached("updatedb");
 #else
-    QProcess::startDetached("gksudo updatedb");
+    // updatedb skips encrypted home folders (with good reason). This means
+    // we need to create a separate mlocate database inside the encrypted home,
+    // that's why we have those weird params.
+    QDir().mkpath(QString("%1/.config/qlocate/").arg(QDir::homePath()));
+    QProcess::startDetached(QString("updatedb -l 0 -o %1/.config/qlocate/mlocate.db -U %1").arg(QDir::homePath()));
 #endif
 }
 
