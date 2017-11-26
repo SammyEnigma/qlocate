@@ -200,17 +200,6 @@ void MainWindow::startSearching()
 
     // The arguments to pass to locate.
     QStringList args;
-#ifdef Q_OS_WIN32
-    args << "-lfd";
-    if (ui->checkBoxRegExp->isChecked()) {
-        if (ui->checkBoxCaseSensitive->isChecked()) {
-            args << "-rc";
-        } else {
-            args << "-r";
-        }
-    }
-    args << "--";
-#else
     args << "--existing";
     if (!ui->checkBoxMatchWholePath->isChecked()) {
         args << "--basename";
@@ -221,7 +210,6 @@ void MainWindow::startSearching()
     if (ui->checkBoxRegExp->isChecked()) {
         args << "--regexp";
     }
-#endif
     args << query;
 
     setLabelText(tr("Searching (press Esc to stop)..."));
@@ -369,15 +357,11 @@ void MainWindow::showFile()
 
 void MainWindow::startUpdateDB()
 {
-#ifdef Q_OS_WIN32
-    QProcess::startDetached("updatedb");
-#else
     // updatedb skips encrypted home folders (with good reason). This means
     // we need to create a separate mlocate database inside the encrypted home,
     // that's why we have those weird params.
     QDir().mkpath(QString("%1/.config/qlocate/").arg(QDir::homePath()));
     QProcess::startDetached(QString("updatedb -l 0 -o %1/.config/qlocate/mlocate.db -U %1").arg(QDir::homePath()));
-#endif
 }
 
 void MainWindow::showContextMenu(QPoint p)
@@ -557,23 +541,15 @@ void MainWindow::changeGlobalHotkey()
 
 void MainWindow::showFile(QString filename)
 {
-#ifdef Q_OS_WIN32
-    QProcess::startDetached(QString("explorer /select,\"%1\"").arg(filename));
-#else
     filename.resize(filename.lastIndexOf(QDir::separator()) + 1);
     QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
-#endif
 }
 
 void MainWindow::resetSettings()
 {
     ui->checkBoxCaseSensitive->setChecked(false);
     ui->checkBoxRegExp->setChecked(false);
-#ifdef Q_OS_WIN32
-    ui->checkBoxSearchOnlyHome->setChecked(false);
-#else
     ui->checkBoxSearchOnlyHome->setChecked(true);
-#endif
     ui->checkBoxShowFullPath->setChecked(false);
     ui->checkBoxSmartWildcard->setChecked(true);
     ui->checkBoxMatchWholePath->setChecked(false);
