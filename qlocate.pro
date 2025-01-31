@@ -31,7 +31,7 @@ OTHER_FILES += \
 
 # Uncomment the following line to compile without Qxt (Global hotkey will not
 # be available):
-# DEFINES += DISABLE_QXT
+DEFINES += DISABLE_QXT
 
 !contains(DEFINES, DISABLE_QXT) {
     INCLUDEPATH += Qxt
