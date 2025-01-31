@@ -29,5 +29,11 @@ RESOURCES += \
 OTHER_FILES += \
     edit-find.svg
 
-INCLUDEPATH += Qxt
+# Uncomment the following line to compile without Qxt (Global hotkey will not
+# be available):
+# DEFINES += DISABLE_QXT
+
+!contains(DEFINES, DISABLE_QXT) {
+    INCLUDEPATH += Qxt
+}
 

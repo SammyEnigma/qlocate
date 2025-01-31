@@ -11,7 +11,9 @@ namespace Ui {
 
 class QProcess;
 class QFileIconProvider;
+#ifndef DISABLE_QXT
 class QxtGlobalShortcut;
+#endif
 
 class MainWindow : public QMainWindow
 {
@@ -65,8 +67,10 @@ private slots:
     /// /path/to/file.txt instead of file.txt.
     void toggleFullPaths();
 
+#ifndef DISABLE_QXT
     /// Shows a dialog to change the global hotkey for showing the qlocate window.
     void changeGlobalHotkey();
+#endif
 
     /// Restores the settings to their defaults.
     void resetSettings();
@@ -99,7 +103,9 @@ private:
     bool isSearching;
     bool isLabelTextRed;
     bool isListBoxCleared;
+#ifndef DISABLE_QXT
     QxtGlobalShortcut* globalHotKey;
+#endif
 };
 
 #endif // MAINWINDOW_H
