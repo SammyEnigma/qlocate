@@ -12,3 +12,7 @@ After building it, you can run it with this command (inside the project folder):
 To install it, type this:
 
 	sudo install qlocate /usr/local/bin/
+
+Screenshot:
+
+![screenshot](screenshot.png)
